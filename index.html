@@ -1,561 +1,1060 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Fútbol Toques ⚽</title>
+<title>⚽ Fútbol Toques</title>
 
-  <!-- MediaPipe -->
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js"></script>
 
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+<style>
 
-    body {
-      margin: 0;
-      background: #111;
-      color: white;
-      font-family: Arial, sans-serif;
-      text-align: center;
-    }
+* {
+    box-sizing: border-box;
+}
 
-    h1 {
-      margin: 15px 0 5px;
-      font-size: 30px;
-    }
+body {
+    margin: 0;
+    background: #101010;
+    color: white;
+    font-family: Arial, sans-serif;
+    text-align: center;
+}
 
-    #estado {
-      font-size: 16px;
-      color: #ccc;
-      margin-bottom: 10px;
-    }
+h1 {
+    margin: 12px 0 3px;
+    font-size: 30px;
+}
 
-    #contador {
-      font-size: 60px;
-      font-weight: bold;
-      margin: 5px 0 15px;
-    }
+#estado {
+    color: #ccc;
+    font-size: 16px;
+    margin-bottom: 5px;
+}
 
-    #zonaCamara {
-      position: relative;
-      width: 95%;
-      max-width: 900px;
-      margin: auto;
-      overflow: hidden;
-      border-radius: 15px;
-      background: #000;
-    }
+#contador {
+    font-size: 65px;
+    font-weight: bold;
+    margin: 0 0 10px;
+}
 
-    #video {
-      width: 100%;
-      display: block;
-      transform: scaleX(-1);
-    }
+#zona {
+    position: relative;
+    width: 95%;
+    max-width: 900px;
+    margin: auto;
+    overflow: hidden;
+    border-radius: 15px;
+    background: black;
+}
 
-    #canvas {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      transform: scaleX(-1);
-    }
+#video {
+    width: 100%;
+    display: block;
 
-    .botones {
-      margin: 15px auto;
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
+    /* Cámara tipo espejo */
+    transform: scaleX(-1);
+}
 
-    button {
-      border: none;
-      border-radius: 12px;
-      padding: 14px 22px;
-      font-size: 17px;
-      font-weight: bold;
-      cursor: pointer;
-    }
+/* BALÓN */
 
-    #activar {
-      background: #00c853;
-      color: white;
-    }
+#balon {
+    position: absolute;
 
-    #empezar {
-      background: #1976d2;
-      color: white;
-    }
+    width: 58px;
+    height: 58px;
 
-    #reiniciar {
-      background: #d32f2f;
-      color: white;
-    }
+    border-radius: 50%;
 
-    button:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-    }
+    display: none;
 
-    #datos {
-      width: 95%;
-      max-width: 900px;
-      margin: 15px auto 30px;
-      padding: 15px;
-      border-radius: 15px;
-      background: #222;
-      text-align: left;
-    }
+    z-index: 10;
 
-    .dato {
-      margin: 8px 0;
-      font-size: 17px;
-    }
+    pointer-events: none;
 
-    .punto {
-      display: inline-block;
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      margin-right: 8px;
-    }
+    font-size: 48px;
+    line-height: 58px;
 
-    .izq {
-      background: #2196f3;
-    }
+    text-align: center;
 
-    .der {
-      background: #ff5252;
-    }
-  </style>
+    filter: drop-shadow(0 4px 4px rgba(0,0,0,.6));
+}
+
+/* BOTONES */
+
+.botones {
+    margin: 15px auto;
+
+    display: flex;
+    justify-content: center;
+
+    gap: 10px;
+
+    flex-wrap: wrap;
+}
+
+button {
+    border: none;
+    border-radius: 12px;
+
+    padding: 14px 22px;
+
+    font-size: 17px;
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+#activar {
+    background: #00a83b;
+    color: white;
+}
+
+#empezar {
+    background: #1976d2;
+    color: white;
+}
+
+#reiniciar {
+    background: #d32f2f;
+    color: white;
+}
+
+button:disabled {
+    opacity: .4;
+}
+
+/* INFORMACIÓN */
+
+#info {
+    width: 95%;
+    max-width: 900px;
+
+    margin: 10px auto 25px;
+
+    background: #222;
+
+    padding: 12px;
+
+    border-radius: 12px;
+}
+
+.parte {
+    margin: 5px;
+    font-size: 16px;
+}
+
+</style>
 </head>
 
 <body>
 
-  <h1>⚽ Fútbol Toques</h1>
+<h1>⚽ Fútbol Toques</h1>
 
-  <div id="estado">
-    Pulsa «Activar cámara» para empezar
-  </div>
+<div id="estado">
+    Activa la cámara para empezar
+</div>
 
-  <div id="contador">0</div>
+<div id="contador">
+    0
+</div>
 
-  <div id="zonaCamara">
+<div id="zona">
+
     <video id="video" autoplay playsinline></video>
-    <canvas id="canvas"></canvas>
-  </div>
 
-  <div class="botones">
-    <button id="activar">📷 Activar cámara</button>
-    <button id="empezar" disabled>▶️ Empezar</button>
-    <button id="reiniciar">🔄 Reiniciar</button>
-  </div>
+    <!-- El balón empieza oculto -->
+    <div id="balon">⚽</div>
 
-  <div id="datos">
+</div>
 
-    <div class="dato">
-      <span class="punto izq"></span>
-      🦵 Rodilla izquierda:
-      <strong id="rodillaIzq">No detectada</strong>
+<div class="botones">
+
+    <button id="activar">
+        📷 Activar cámara
+    </button>
+
+    <button id="empezar" disabled>
+        ▶️ Empezar
+    </button>
+
+    <button id="reiniciar">
+        🔄 Reiniciar
+    </button>
+
+</div>
+
+<div id="info">
+
+    <div class="parte">
+        🦵 Rodilla izquierda:
+        <span id="rI">—</span>
     </div>
 
-    <div class="dato">
-      <span class="punto der"></span>
-      🦵 Rodilla derecha:
-      <strong id="rodillaDer">No detectada</strong>
+    <div class="parte">
+        🦵 Rodilla derecha:
+        <span id="rD">—</span>
     </div>
 
-    <div class="dato">
-      🦶 Tobillo izquierdo:
-      <strong id="tobilloIzq">No detectado</strong>
+    <div class="parte">
+        🦶 Pie/tobillo izquierdo:
+        <span id="pI">—</span>
     </div>
 
-    <div class="dato">
-      🦶 Tobillo derecho:
-      <strong id="tobilloDer">No detectado</strong>
+    <div class="parte">
+        🦶 Pie/tobillo derecho:
+        <span id="pD">—</span>
     </div>
 
-  </div>
+    <div class="parte">
+        🫁 Pecho:
+        <span id="pecho">—</span>
+    </div>
+
+</div>
 
 <script>
 
-  const video = document.getElementById("video");
-  const canvas = document.getElementById("canvas");
-  const ctx = canvas.getContext("2d");
+/* ========================================
+   ELEMENTOS
+======================================== */
 
-  const activarBtn = document.getElementById("activar");
-  const empezarBtn = document.getElementById("empezar");
-  const reiniciarBtn = document.getElementById("reiniciar");
+const video = document.getElementById("video");
 
-  const estado = document.getElementById("estado");
-  const contadorTexto = document.getElementById("contador");
+const zona = document.getElementById("zona");
 
-  const rodillaIzqTexto = document.getElementById("rodillaIzq");
-  const rodillaDerTexto = document.getElementById("rodillaDer");
+const balon = document.getElementById("balon");
 
-  const tobilloIzqTexto = document.getElementById("tobilloIzq");
-  const tobilloDerTexto = document.getElementById("tobilloDer");
+const activar = document.getElementById("activar");
 
-  let contador = 0;
-  let empezado = false;
+const empezar = document.getElementById("empezar");
 
-  let ultimoYIzq = null;
-  let ultimoYDer = null;
+const reiniciar = document.getElementById("reiniciar");
 
-  let ultimoToqueIzq = 0;
-  let ultimoToqueDer = 0;
+const estado = document.getElementById("estado");
 
-  const TIEMPO_ENTRE_TOQUES = 350;
+const contadorTexto = document.getElementById("contador");
 
-  /*
-    MediaPipe Pose
-  */
 
-  const pose = new Pose({
+/* ========================================
+   VARIABLES
+======================================== */
+
+let puntos = [];
+
+let jugando = false;
+
+let contador = 0;
+
+let ultimoToque = 0;
+
+
+/* ========================================
+   BALÓN
+======================================== */
+
+let pelota = {
+
+    x: 0.5,
+
+    y: 0.25,
+
+    vx: 0,
+
+    vy: 0,
+
+    radio: 29,
+
+    activa: false
+
+};
+
+
+/*
+   Física del balón
+*/
+
+const gravedad = 0.00065;
+
+
+/*
+   Fuerza con la que sube después
+   de tocar el cuerpo
+*/
+
+const fuerzaToque = -0.017;
+
+
+/* ========================================
+   MEDIAPIPE
+======================================== */
+
+const pose = new Pose({
+
     locateFile: (file) => {
-      return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`;
-    }
-  });
 
-  pose.setOptions({
+        return "https://cdn.jsdelivr.net/npm/@mediapipe/pose/" + file;
+
+    }
+
+});
+
+
+pose.setOptions({
+
     modelComplexity: 1,
+
     smoothLandmarks: true,
+
     enableSegmentation: false,
-    smoothSegmentation: true,
+
     minDetectionConfidence: 0.5,
+
     minTrackingConfidence: 0.5
-  });
+
+});
 
 
-  /*
-    RESULTADOS DE MEDIAPIPE
-  */
+/*
+   MUY IMPORTANTE:
 
-  pose.onResults((results) => {
+   Aquí NO dibujamos el cuerpo.
 
-    if (!video.videoWidth || !video.videoHeight) {
-      return;
+   MediaPipe solamente detecta los puntos.
+*/
+
+pose.onResults((resultado) => {
+
+    if (!resultado.poseLandmarks) {
+
+        estado.textContent =
+            "👤 No detecto tu cuerpo";
+
+        puntos = [];
+
+        return;
+
     }
 
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
+    puntos = resultado.poseLandmarks;
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    estado.textContent =
+        jugando
+        ? "🔥 ¡Haz toques!"
+        : "✅ Cuerpo detectado";
 
-    if (!results.poseLandmarks) {
+    actualizarInformacion();
 
-      estado.textContent = "No se detecta el cuerpo. Ponte delante de la cámara.";
-
-      rodillaIzqTexto.textContent = "No detectada";
-      rodillaDerTexto.textContent = "No detectada";
-
-      tobilloIzqTexto.textContent = "No detectado";
-      tobilloDerTexto.textContent = "No detectado";
-
-      return;
-    }
-
-    estado.textContent = "✅ Cuerpo detectado";
-
-    /*
-      Dibujar cuerpo
-    */
-
-    drawConnectors(
-      ctx,
-      results.poseLandmarks,
-      POSE_CONNECTIONS,
-      {
-        color: "#00ff00",
-        lineWidth: 4
-      }
-    );
-
-    drawLandmarks(
-      ctx,
-      results.poseLandmarks,
-      {
-        color: "#ffffff",
-        fillColor: "#00ff00",
-        lineWidth: 2,
-        radius: 5
-      }
-    );
+});
 
 
-    /*
-      PUNTOS DE MEDIAPIPE
+/* ========================================
+   INFORMACIÓN
+======================================== */
 
-      25 = rodilla izquierda
-      26 = rodilla derecha
-      27 = tobillo izquierdo
-      28 = tobillo derecho
-    */
+function visible(punto) {
 
-    const rodillaIzq = results.poseLandmarks[25];
-    const rodillaDer = results.poseLandmarks[26];
+    return punto &&
+           punto.visibility !== undefined &&
+           punto.visibility > 0.5;
 
-    const tobilloIzq = results.poseLandmarks[27];
-    const tobilloDer = results.poseLandmarks[28];
+}
 
 
-    /*
-      Mostrar detección
-    */
+function actualizarInformacion() {
 
-    if (rodillaIzq && rodillaIzq.visibility > 0.5) {
-      rodillaIzqTexto.textContent = "Detectada ✅";
-    } else {
-      rodillaIzqTexto.textContent = "No detectada";
-    }
+    const rodillaI = puntos[25];
 
-    if (rodillaDer && rodillaDer.visibility > 0.5) {
-      rodillaDerTexto.textContent = "Detectada ✅";
-    } else {
-      rodillaDerTexto.textContent = "No detectada";
-    }
+    const rodillaD = puntos[26];
 
-    if (tobilloIzq && tobilloIzq.visibility > 0.5) {
-      tobilloIzqTexto.textContent = "Detectado ✅";
-    } else {
-      tobilloIzqTexto.textContent = "No detectado";
-    }
+    const tobilloI = puntos[27];
 
-    if (tobilloDer && tobilloDer.visibility > 0.5) {
-      tobilloDerTexto.textContent = "Detectado ✅";
-    } else {
-      tobilloDerTexto.textContent = "No detectado";
-    }
+    const tobilloD = puntos[28];
 
 
-    /*
-      CONTADOR DE TOQUES
-
-      Comprobamos el movimiento vertical
-      de los tobillos.
-    */
-
-    if (!empezado) {
-      if (tobilloIzq) {
-        ultimoYIzq = tobilloIzq.y;
-      }
-
-      if (tobilloDer) {
-        ultimoYDer = tobilloDer.y;
-      }
-
-      return;
-    }
+    document.getElementById("rI").textContent =
+        visible(rodillaI) ? "✓" : "—";
 
 
-    /*
-      PIE IZQUIERDO
-    */
+    document.getElementById("rD").textContent =
+        visible(rodillaD) ? "✓" : "—";
+
+
+    document.getElementById("pI").textContent =
+        visible(tobilloI) ? "✓" : "—";
+
+
+    document.getElementById("pD").textContent =
+        visible(tobilloD) ? "✓" : "—";
+
 
     if (
-      tobilloIzq &&
-      tobilloIzq.visibility > 0.6 &&
-      ultimoYIzq !== null
+        visible(puntos[11]) &&
+        visible(puntos[12]) &&
+        visible(puntos[23]) &&
+        visible(puntos[24])
     ) {
 
-      const movimientoIzq = ultimoYIzq - tobilloIzq.y;
+        document.getElementById("pecho").textContent = "✓";
 
-      const ahora = Date.now();
+    } else {
 
-      if (
-        movimientoIzq > 0.025 &&
-        ahora - ultimoToqueIzq > TIEMPO_ENTRE_TOQUES
-      ) {
+        document.getElementById("pecho").textContent = "—";
 
-        contador++;
-
-        ultimoToqueIzq = ahora;
-
-        actualizarContador();
-      }
-
-      ultimoYIzq = tobilloIzq.y;
     }
 
-
-    /*
-      PIE DERECHO
-    */
-
-    if (
-      tobilloDer &&
-      tobilloDer.visibility > 0.6 &&
-      ultimoYDer !== null
-    ) {
-
-      const movimientoDer = ultimoYDer - tobilloDer.y;
-
-      const ahora = Date.now();
-
-      if (
-        movimientoDer > 0.025 &&
-        ahora - ultimoToqueDer > TIEMPO_ENTRE_TOQUES
-      ) {
-
-        contador++;
-
-        ultimoToqueDer = ahora;
-
-        actualizarContador();
-      }
-
-      ultimoYDer = tobilloDer.y;
-    }
-
-  });
+}
 
 
-  /*
-    ACTUALIZAR CONTADOR
-  */
+/* ========================================
+   ACTIVAR CÁMARA
+======================================== */
 
-  function actualizarContador() {
-    contadorTexto.textContent = contador;
-  }
-
-
-  /*
-    ACTIVAR CÁMARA
-  */
-
-  activarBtn.addEventListener("click", async () => {
+activar.onclick = async () => {
 
     try {
 
-      estado.textContent = "Solicitando permiso para la cámara...";
+        estado.textContent =
+            "📷 Pidiendo permiso para la cámara...";
 
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: "user",
-          width: {
-            ideal: 1280
-          },
-          height: {
-            ideal: 720
-          }
-        },
-        audio: false
-      });
 
-      video.srcObject = stream;
+        const stream =
+            await navigator.mediaDevices.getUserMedia({
 
-      await video.play();
+                video: {
 
-      estado.textContent =
-        "📷 Cámara activada. Ponte de cuerpo entero delante.";
+                    facingMode: "user",
 
-      empezarBtn.disabled = false;
+                    width: {
+                        ideal: 1280
+                    },
 
-      activarBtn.disabled = true;
+                    height: {
+                        ideal: 720
+                    }
 
-      iniciarMediaPipe();
+                },
+
+                audio: false
+
+            });
+
+
+        video.srcObject = stream;
+
+        await video.play();
+
+
+        activar.disabled = true;
+
+        empezar.disabled = false;
+
+
+        estado.textContent =
+            "📷 Cámara activada. Ponte de cuerpo entero.";
+
+
+        iniciarMediaPipe();
+
 
     } catch (error) {
 
-      console.error(error);
+        console.error(error);
 
-      estado.textContent =
-        "❌ No se ha podido activar la cámara.";
+        estado.textContent =
+            "❌ No se pudo activar la cámara.";
 
-      alert(
-        "No se ha podido acceder a la cámara. Comprueba que has dado permiso al navegador."
-      );
+        alert(
+            "No se pudo acceder a la cámara. Comprueba los permisos del navegador."
+        );
 
     }
 
-  });
+};
 
 
-  /*
-    INICIAR MEDIAPIPE
-  */
+/* ========================================
+   INICIAR MEDIAPIPE
+======================================== */
 
-  let camera;
+function iniciarMediaPipe() {
 
-  function iniciarMediaPipe() {
+    const camera = new Camera(video, {
 
-    camera = new Camera(video, {
+        onFrame: async () => {
 
-      onFrame: async () => {
+            await pose.send({
+                image: video
+            });
 
-        await pose.send({
-          image: video
-        });
+        },
 
-      },
+        width: 1280,
 
-      width: 1280,
-      height: 720
+        height: 720
 
     });
 
+
     camera.start();
 
-  }
+}
 
 
-  /*
-    EMPEZAR CONTADOR
-  */
+/* ========================================
+   EMPEZAR PARTIDA
+======================================== */
 
-  empezarBtn.addEventListener("click", () => {
+empezar.onclick = () => {
 
-    empezado = true;
-
-    contador = 0;
-
-    ultimoYIzq = null;
-    ultimoYDer = null;
-
-    ultimoToqueIzq = 0;
-    ultimoToqueDer = 0;
-
-    actualizarContador();
-
-    estado.textContent =
-      "🔥 ¡Empieza a hacer toques!";
-
-    empezarBtn.disabled = true;
-
-  });
-
-
-  /*
-    REINICIAR
-  */
-
-  reiniciarBtn.addEventListener("click", () => {
+    /*
+       Reiniciar contador
+    */
 
     contador = 0;
 
-    empezado = false;
+    contadorTexto.textContent = "0";
 
-    ultimoYIzq = null;
-    ultimoYDer = null;
 
-    ultimoToqueIzq = 0;
-    ultimoToqueDer = 0;
+    /*
+       ACTIVAR JUEGO
+    */
 
-    actualizarContador();
+    jugando = true;
+
+
+    /*
+       GENERAR BALÓN
+
+       El balón aparece AHORA,
+       justo cuando pulsamos empezar.
+    */
+
+    pelota.activa = true;
+
+
+    /*
+       Aparece aproximadamente
+       en la parte superior.
+    */
+
+    pelota.x = 0.5;
+
+    pelota.y = 0.22;
+
+
+    /*
+       Comienza cayendo
+    */
+
+    pelota.vx = 0;
+
+    pelota.vy = 0.002;
+
+
+    /*
+       Mostrar balón
+    */
+
+    balon.style.display = "block";
+
 
     estado.textContent =
-      "Pulsa «Empezar» para comenzar.";
+        "🔥 ¡Haz toques!";
 
-    empezarBtn.disabled = !video.srcObject;
 
-  });
+    empezar.disabled = true;
+
+};
+
+
+/* ========================================
+   REINICIAR
+======================================== */
+
+reiniciar.onclick = () => {
+
+    jugando = false;
+
+    contador = 0;
+
+    contadorTexto.textContent = "0";
+
+
+    pelota.activa = false;
+
+
+    balon.style.display = "none";
+
+
+    empezar.disabled =
+        !video.srcObject;
+
+
+    estado.textContent =
+        video.srcObject
+        ? "Pulsa «Empezar» para generar el balón"
+        : "Activa la cámara para empezar";
+
+};
+
+
+/* ========================================
+   DISTANCIA
+======================================== */
+
+function distancia(x1, y1, x2, y2) {
+
+    const dx = x1 - x2;
+
+    const dy = y1 - y2;
+
+    return Math.sqrt(
+        dx * dx +
+        dy * dy
+    );
+
+}
+
+
+/* ========================================
+   CREAR PUNTOS DEL CUERPO
+======================================== */
+
+function obtenerPartes() {
+
+    const partes = [];
+
+
+    /*
+       PIE / TOBILLO IZQUIERDO
+    */
+
+    if (visible(puntos[27])) {
+
+        partes.push({
+
+            nombre: "pie izquierdo",
+
+            punto: puntos[27],
+
+            radio: 0.075
+
+        });
+
+    }
+
+
+    /*
+       PIE / TOBILLO DERECHO
+    */
+
+    if (visible(puntos[28])) {
+
+        partes.push({
+
+            nombre: "pie derecho",
+
+            punto: puntos[28],
+
+            radio: 0.075
+
+        });
+
+    }
+
+
+    /*
+       PUNTA DEL PIE IZQUIERDO
+       MediaPipe 31
+    */
+
+    if (visible(puntos[31])) {
+
+        partes.push({
+
+            nombre: "pie izquierdo",
+
+            punto: puntos[31],
+
+            radio: 0.07
+
+        });
+
+    }
+
+
+    /*
+       PUNTA DEL PIE DERECHO
+       MediaPipe 32
+    */
+
+    if (visible(puntos[32])) {
+
+        partes.push({
+
+            nombre: "pie derecho",
+
+            punto: puntos[32],
+
+            radio: 0.07
+
+        });
+
+    }
+
+
+    /*
+       RODILLA IZQUIERDA
+    */
+
+    if (visible(puntos[25])) {
+
+        partes.push({
+
+            nombre: "rodilla izquierda",
+
+            punto: puntos[25],
+
+            radio: 0.075
+
+        });
+
+    }
+
+
+    /*
+       RODILLA DERECHA
+    */
+
+    if (visible(puntos[26])) {
+
+        partes.push({
+
+            nombre: "rodilla derecha",
+
+            punto: puntos[26],
+
+            radio: 0.075
+
+        });
+
+    }
+
+
+    /*
+       PECHO
+
+       Calculamos el centro aproximado
+       del torso.
+    */
+
+    if (
+        visible(puntos[11]) &&
+        visible(puntos[12]) &&
+        visible(puntos[23]) &&
+        visible(puntos[24])
+    ) {
+
+        const pechoX =
+            (
+                puntos[11].x +
+                puntos[12].x +
+                puntos[23].x +
+                puntos[24].x
+            ) / 4;
+
+
+        const pechoY =
+            (
+                puntos[11].y +
+                puntos[12].y +
+                puntos[23].y +
+                puntos[24].y
+            ) / 4;
+
+
+        partes.push({
+
+            nombre: "pecho",
+
+            punto: {
+
+                x: pechoX,
+
+                y: pechoY,
+
+                visibility: 1
+
+            },
+
+            radio: 0.12
+
+        });
+
+    }
+
+
+    return partes;
+
+}
+
+
+/* ========================================
+   COMPROBAR SI EL BALÓN TOCA EL CUERPO
+======================================== */
+
+function comprobarToque() {
+
+    if (!jugando || !pelota.activa) {
+
+        return;
+
+    }
+
+
+    const partes = obtenerPartes();
+
+
+    for (const parte of partes) {
+
+        const d = distancia(
+
+            pelota.x,
+
+            pelota.y,
+
+            parte.punto.x,
+
+            parte.punto.y
+
+        );
+
+
+        /*
+           Si balón y cuerpo están cerca
+        */
+
+        if (d < parte.radio) {
+
+            hacerToque(parte);
+
+            break;
+
+        }
+
+    }
+
+}
+
+
+/* ========================================
+   TOQUE DEL BALÓN
+======================================== */
+
+function hacerToque(parte) {
+
+    const ahora = Date.now();
+
+
+    /*
+       Evitar que un mismo contacto
+       cuente muchas veces.
+    */
+
+    if (ahora - ultimoToque < 350) {
+
+        return;
+
+    }
+
+
+    ultimoToque = ahora;
+
+
+    /*
+       SUMAR TOQUE
+    */
+
+    contador++;
+
+    contadorTexto.textContent =
+        contador;
+
+
+    /*
+       BALÓN HACIA ARRIBA
+    */
+
+    pelota.vy = fuerzaToque;
+
+
+    /*
+       Dirección horizontal
+
+       Izquierda → balón ligeramente
+       hacia la izquierda.
+
+       Derecha → ligeramente
+       hacia la derecha.
+
+       Pecho/rodilla → pequeña variación.
+    */
+
+    if (parte.nombre.includes("izquierdo")) {
+
+        pelota.vx = -0.0025;
+
+    }
+
+    else if (parte.nombre.includes("derecho")) {
+
+        pelota.vx = 0.0025;
+
+    }
+
+    else {
+
+        pelota.vx =
+            (Math.random() - 0.5) * 0.004;
+
+    }
+
+}
+
+
+/* ========================================
+   ACTUALIZAR BALÓN
+======================================== */
+
+function actualizarPelota() {
+
+    if (!pelota.activa) {
+
+        return;
+
+    }
+
+
+    /*
+       GRAVEDAD
+    */
+
+    pelota.vy += gravedad;
+
+
+    /*
+       MOVIMIENTO
+    */
+
+    pelota.x += pelota.vx;
+
+    pelota.y += pelota.vy;
+
+
+    /*
+       FRENADO HORIZONTAL
+    */
+
+    pelota.vx *= 0.995;
+
+
+    /*
+       PAREDES
+    */
+
+    if (pelota.x < 0.04) {
+
+        pelota.x = 0.04;
+
+        pelota.vx *= -0.8;
+
+    }
+
+
+    if (pelota.x > 0.96) {
+
+        pelota.x = 0.96;
+
+        pelota.vx *= -0.8;
+
+    }
+
+
+    /*
+       SI EL BALÓN SE VA POR ABAJO
+
+       Lo devolvemos arriba para
+       que puedas seguir jugando.
+    */
+
+    if (pelota.y > 1.05) {
+
+        pelota.y = 0.30;
+
+        pelota.vy = 0.002;
+
+        pelota.vx =
+            (Math.random() - 0.5) * 0.003;
+
+    }
+
+
+    /*
+       COMPROBAR CONTACTO
+    */
+
+    comprobarToque();
+
+
+    /*
+       TAMAÑO DE LA ZONA
+    */
+
+    const ancho =
+        zona.clientWidth;
+
+    const alto =
+        zona.clientHeight;
+
+
+    /*
+       POSICIÓN DEL BALÓN
+    */
+
+    const x =
+        pelota.x * ancho;
+
+    const y =
+        pelota.y * alto;
+
+
+    balon.style.left =
+        (x - pelota.radio) + "px";
+
+
+    balon.style.top =
+        (y - pelota.radio) + "px";
+
+}
+
+
+/* ========================================
+   BUCLE PRINCIPAL
+======================================== */
+
+function bucle() {
+
+    actualizarPelota();
+
+    requestAnimationFrame(bucle);
+
+}
+
+
+bucle();
 
 </script>
 
