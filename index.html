@@ -1,109 +1,71 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-
 <meta charset="UTF-8">
 
 <meta name="viewport"
-content="width=device-width,
-initial-scale=1.0,
-maximum-scale=1.0,
-user-scalable=no">
+      content="width=device-width,
+      initial-scale=1.0,
+      maximum-scale=1.0,
+      user-scalable=no">
 
 <title>⚽ Fútbol Toques</title>
 
-
 <!-- TensorFlow -->
-
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js"></script>
 
-
 <!-- MoveNet -->
-
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection@2.1.3/dist/pose-detection.min.js"></script>
-
 
 <style>
 
-/* ================================
-   GENERAL
-================================ */
-
 * {
-
     box-sizing: border-box;
-
     -webkit-tap-highlight-color: transparent;
-
 }
-
 
 html,
 body {
-
     margin: 0;
-
     padding: 0;
-
     width: 100%;
-
     min-height: 100%;
 
     background: #101010;
-
     color: white;
 
     font-family: Arial, sans-serif;
-
     text-align: center;
-
 }
-
 
 h1 {
-
     margin: 10px 0 3px;
-
     font-size: 25px;
-
 }
-
 
 #estado {
-
     min-height: 22px;
-
-    color: #cccccc;
-
+    color: #ccc;
     font-size: 14px;
-
 }
-
 
 #contador {
-
     font-size: 62px;
-
     font-weight: bold;
-
     line-height: 1;
-
     margin: 5px 0 10px;
-
 }
 
 
-/* ================================
+/* ==============================
    CÁMARA
-================================ */
+============================== */
 
 #zonaCamara {
 
     position: relative;
 
     width: 96vw;
-
     max-width: 900px;
 
     height: 75vh;
@@ -115,15 +77,11 @@ h1 {
     background: black;
 
     border-radius: 16px;
-
 }
 
 
 /*
-   IMPORTANTE:
-
-   Cámara DELANTERA
-   visualmente en espejo.
+   CÁMARA DELANTERA EN ESPEJO
 */
 
 #video {
@@ -131,34 +89,29 @@ h1 {
     position: absolute;
 
     left: 0;
-
     top: 0;
 
     width: 100%;
-
     height: 100%;
 
     object-fit: contain;
 
     transform: scaleX(-1);
-
 }
 
 
-/* ================================
+/* ==============================
    BALÓN
-================================ */
+============================== */
 
 #balon {
 
     position: absolute;
 
     width: 58px;
-
     height: 58px;
 
     margin-left: -29px;
-
     margin-top: -29px;
 
     display: none;
@@ -176,13 +129,26 @@ h1 {
             0 4px 4px
             rgba(0,0,0,.8)
         );
-
 }
 
 
-/* ================================
-   CONTROLES
-================================ */
+/*
+   IMPORTANTE:
+
+   NO HAY CANVAS DE POSE.
+
+   NO SE DIBUJAN PUNTOS.
+
+   NO SE DIBUJAN LÍNEAS.
+
+   LAS HITBOXES EXISTEN EN JAVASCRIPT,
+   PERO SON INVISIBLES.
+*/
+
+
+/* ==============================
+   BOTONES
+============================== */
 
 .controles {
 
@@ -199,9 +165,7 @@ h1 {
     max-width: 800px;
 
     margin: 10px auto;
-
 }
-
 
 button {
 
@@ -218,48 +182,32 @@ button {
     font-weight: bold;
 
     cursor: pointer;
-
 }
-
 
 #activar {
-
     background: #00a844;
-
 }
-
 
 #empezar {
-
     background: #1976d2;
-
 }
-
 
 #reiniciar {
-
     background: #d32f2f;
-
 }
-
 
 button:disabled {
-
     opacity: .4;
-
-    cursor: default;
-
 }
 
 
-/* ================================
+/* ==============================
    INFORMACIÓN
-================================ */
+============================== */
 
 #info {
 
     width: 94%;
-
     max-width: 650px;
 
     margin: 10px auto 25px;
@@ -269,9 +217,7 @@ button:disabled {
     background: #202020;
 
     border-radius: 13px;
-
 }
-
 
 .fila {
 
@@ -282,49 +228,28 @@ button:disabled {
     padding: 6px;
 
     border-bottom: 1px solid #333;
-
-}
-
-
-.ok {
-
-    color: #55ff77;
-
-}
-
-
-.no {
-
-    color: #888;
-
 }
 
 </style>
-
 </head>
 
 
 <body>
 
-
-<h1>
-⚽ Fútbol Toques
-</h1>
-
+<h1>⚽ Fútbol Toques</h1>
 
 <div id="estado">
-Pulsa «Activar cámara»
+    Pulsa «Activar cámara»
 </div>
-
 
 <div id="contador">
-0
+    0
 </div>
 
 
-<!-- ==========================
+<!-- ==============================
      CÁMARA
-========================== -->
+============================== -->
 
 <div id="zonaCamara">
 
@@ -336,6 +261,8 @@ Pulsa «Activar cámara»
     </video>
 
 
+    <!-- ÚNICAMENTE EL BALÓN ES VISIBLE -->
+
     <div id="balon">
         ⚽
     </div>
@@ -343,9 +270,9 @@ Pulsa «Activar cámara»
 </div>
 
 
-<!-- ==========================
+<!-- ==============================
      BOTONES
-========================== -->
+============================== -->
 
 <div class="controles">
 
@@ -353,139 +280,72 @@ Pulsa «Activar cámara»
         📷 Activar cámara
     </button>
 
-
     <button
         id="empezar"
         disabled>
-
         ▶️ Empezar
-
     </button>
 
-
     <button id="reiniciar">
-
         🔄 Reiniciar
-
     </button>
 
 </div>
 
 
-<!-- ==========================
-     INFORMACIÓN
-========================== -->
+<!-- ==============================
+     ESTADO DE DETECCIÓN
+============================== -->
 
 <div id="info">
 
-
     <div class="fila">
-
-        <span>
-            🦵 Rodillas
-        </span>
-
-        <span
-            id="rodillas"
-            class="no">
-
-            —
-
-        </span>
-
+        <span>🦵 Rodillas</span>
+        <span id="rodillas">—</span>
     </div>
 
-
     <div class="fila">
-
-        <span>
-            🦶 Pies
-        </span>
-
-        <span
-            id="pies"
-            class="no">
-
-            —
-
-        </span>
-
+        <span>🦶 Pies</span>
+        <span id="pies">—</span>
     </div>
 
-
     <div class="fila">
-
-        <span>
-            🫁 Pecho
-        </span>
-
-        <span
-            id="pecho"
-            class="no">
-
-            —
-
-        </span>
-
+        <span>🫁 Pecho</span>
+        <span id="pecho">—</span>
     </div>
-
 
 </div>
 
 
 <script>
 
-
 /* ==================================================
    ELEMENTOS
 ================================================== */
 
 const video =
-    document.getElementById(
-        "video"
-    );
+    document.getElementById("video");
 
-
-const zona =
-    document.getElementById(
-        "zonaCamara"
-    );
-
+const zonaCamara =
+    document.getElementById("zonaCamara");
 
 const balon =
-    document.getElementById(
-        "balon"
-    );
-
+    document.getElementById("balon");
 
 const estado =
-    document.getElementById(
-        "estado"
-    );
-
+    document.getElementById("estado");
 
 const contadorTexto =
-    document.getElementById(
-        "contador"
-    );
-
+    document.getElementById("contador");
 
 const activar =
-    document.getElementById(
-        "activar"
-    );
-
+    document.getElementById("activar");
 
 const empezar =
-    document.getElementById(
-        "empezar"
-    );
-
+    document.getElementById("empezar");
 
 const reiniciar =
-    document.getElementById(
-        "reiniciar"
-    );
+    document.getElementById("reiniciar");
 
 
 /* ==================================================
@@ -506,10 +366,9 @@ let contador = 0;
 
 
 /*
-   Puntos suavizados.
+   Suavizado de MoveNet.
 
-   Esto evita pequeños saltos
-   de MoveNet.
+   Esto NO dibuja nada.
 */
 
 const puntosSuaves = {};
@@ -518,9 +377,7 @@ const SUAVIZADO = 0.55;
 
 
 /*
-   Escala moderada.
-
-   Evita hitboxes gigantes.
+   Escala de las hitboxes.
 */
 
 let escalaCuerpo = 1;
@@ -532,24 +389,20 @@ let escalaCuerpo = 1;
 
 async function cargarDetector() {
 
-
     estado.textContent =
         "🧠 Cargando MoveNet...";
-
 
     await tf.ready();
 
 
     /*
-       Intentamos utilizar WebGL
-       para mejorar rendimiento.
+       Intentamos usar WebGL
+       para que funcione más rápido.
     */
 
     try {
 
-        await tf.setBackend(
-            "webgl"
-        );
+        await tf.setBackend("webgl");
 
         await tf.ready();
 
@@ -563,47 +416,35 @@ async function cargarDetector() {
 
 
     detector =
-        await poseDetection
-            .createDetector(
+        await poseDetection.createDetector(
 
-                poseDetection
-                    .SupportedModels
-                    .MoveNet,
+            poseDetection.SupportedModels.MoveNet,
 
-                {
+            {
 
-                    modelType:
+                modelType:
+                    poseDetection
+                        .movenet
+                        .modelType
+                        .SINGLEPOSE_THUNDER,
 
-                        poseDetection
-                            .movenet
-                            .modelType
-                            .SINGLEPOSE_THUNDER,
+                enableSmoothing: true
 
-                    enableSmoothing:
-                        true
+            }
 
-                }
-
-            );
+        );
 
 
     estado.textContent =
         "✅ Detector preparado";
-
 }
 
 
 /* ==================================================
-   CÁMARA DELANTERA
+   ACTIVAR CÁMARA
 ================================================== */
 
 async function iniciarCamara() {
-
-
-    /*
-       Si ya había una cámara,
-       la cerramos.
-    */
 
     if (stream) {
 
@@ -619,10 +460,15 @@ async function iniciarCamara() {
 
     try {
 
-
         estado.textContent =
             "📷 Abriendo cámara...";
 
+
+        /*
+           CÁMARA DELANTERA.
+
+           No usamos cámara trasera.
+        */
 
         stream =
             await navigator
@@ -631,29 +477,17 @@ async function iniciarCamara() {
 
                     video: {
 
-                        /*
-                           SOLO DELANTERA.
-                        */
-
                         facingMode: {
                             exact: "user"
                         },
-
-
-                        /*
-                           Resolución suficiente
-                           para MoveNet.
-                        */
 
                         width: {
                             ideal: 1280
                         },
 
-
                         height: {
                             ideal: 720
                         },
-
 
                         frameRate: {
                             ideal: 30,
@@ -674,10 +508,6 @@ async function iniciarCamara() {
         await video.play();
 
 
-        /*
-           Cargar detector.
-        */
-
         if (!detector) {
 
             await cargarDetector();
@@ -687,7 +517,6 @@ async function iniciarCamara() {
 
         activar.disabled =
             true;
-
 
         empezar.disabled =
             false;
@@ -700,54 +529,30 @@ async function iniciarCamara() {
         iniciarDeteccion();
 
 
-    }
+    } catch (error) {
 
-    catch (error) {
-
-
-        console.error(
-            error
-        );
-
+        console.error(error);
 
         estado.textContent =
-            "❌ Error con la cámara";
-
+            "❌ No se pudo abrir la cámara";
 
         alert(
-            "No se pudo abrir la cámara. Comprueba que has permitido el acceso."
+            "Permite el acceso a la cámara y vuelve a intentarlo."
         );
 
     }
-
 }
 
 
-/* ==================================================
-   BOTÓN CÁMARA
-================================================== */
-
 activar.onclick =
-    async function() {
-
-        await iniciarCamara();
-
-    };
+    iniciarCamara;
 
 
 /* ==================================================
    OBTENER PUNTO
 ================================================== */
 
-function obtenerPunto(
-    indice
-) {
-
-
-    /*
-       Si no hay pose,
-       no podemos detectar.
-    */
+function obtenerPunto(indice) {
 
     if (
         !ultimaPose ||
@@ -760,8 +565,7 @@ function obtenerPunto(
 
 
     const punto =
-        ultimaPose
-            .keypoints[indice];
+        ultimaPose.keypoints[indice];
 
 
     if (!punto) {
@@ -772,10 +576,10 @@ function obtenerPunto(
 
 
     /*
-       Umbral de confianza.
+       Confianza mínima.
 
-       Algo bajo para no perder
-       los pies fácilmente.
+       Un poco baja para no perder
+       los pies cuando están abajo.
     */
 
     if (
@@ -799,13 +603,11 @@ function obtenerPunto(
 
 
     /*
-       COORDENADAS ESPEJO.
+       ESPEJO.
 
-       MoveNet ve la imagen normal.
-
-       La pantalla está reflejada.
-
-       Por eso invertimos X.
+       La cámara está visualmente
+       invertida, por eso también
+       invertimos X.
     */
 
     const x =
@@ -822,7 +624,10 @@ function obtenerPunto(
 
 
     /*
-       Suavizado.
+       SUAVIZADO.
+
+       El punto sigue existiendo
+       aunque no se dibuje.
     */
 
     if (
@@ -830,20 +635,13 @@ function obtenerPunto(
     ) {
 
         puntosSuaves[indice] = {
-
-            x: x,
-
-            y: y
-
+            x,
+            y
         };
 
-    }
-
-    else {
-
+    } else {
 
         puntosSuaves[indice].x +=
-
             (
                 x -
                 puntosSuaves[indice].x
@@ -853,7 +651,6 @@ function obtenerPunto(
 
 
         puntosSuaves[indice].y +=
-
             (
                 y -
                 puntosSuaves[indice].y
@@ -883,13 +680,8 @@ function obtenerPunto(
 
 function iniciarDeteccion() {
 
-
-    if (
-        deteccionIniciada
-    ) {
-
+    if (deteccionIniciada) {
         return;
-
     }
 
 
@@ -899,15 +691,12 @@ function iniciarDeteccion() {
 
     async function detectar() {
 
-
         if (
             detector &&
             video.readyState >= 2
         ) {
 
-
             try {
-
 
                 const poses =
                     await detector
@@ -920,10 +709,9 @@ function iniciarDeteccion() {
                                 maxPoses: 1,
 
                                 /*
-                                   NO invertimos aquí.
-
-                                   Nosotros invertimos
-                                   las coordenadas después.
+                                   MoveNet detecta,
+                                   pero NO dibujamos
+                                   absolutamente nada.
                                 */
 
                                 flipHorizontal:
@@ -938,35 +726,23 @@ function iniciarDeteccion() {
                     poses.length > 0
                 ) {
 
-
                     ultimaPose =
                         poses[0];
 
 
                     actualizarEstado();
 
-                }
-
-                else {
-
+                } else {
 
                     ultimaPose =
                         null;
 
-
-                    estado.textContent =
-                        "🔎 Buscando cuerpo...";
-
                 }
 
 
-            }
+            } catch (error) {
 
-            catch (error) {
-
-                console.log(
-                    error
-                );
+                console.log(error);
 
             }
 
@@ -986,46 +762,40 @@ function iniciarDeteccion() {
 
 
 /* ==================================================
-   ESTADO DE DETECCIÓN
+   ESTADO
 ================================================== */
 
 function actualizarEstado() {
 
-
     const rodillaI =
         obtenerPunto(13);
-
 
     const rodillaD =
         obtenerPunto(14);
 
-
     const pieI =
         obtenerPunto(15);
-
 
     const pieD =
         obtenerPunto(16);
 
 
     /*
-       NO utilizamos manos.
+       Solo mostramos información
+       en texto.
 
-       Los índices de las manos
-       nunca aparecen en las
-       hitboxes.
+       NO mostramos las hitboxes.
     */
-
 
     document.getElementById(
         "rodillas"
     ).textContent =
 
-        rodillaI ||
-        rodillaD
-
+        (
+            rodillaI ||
+            rodillaD
+        )
             ? "✓"
-
             : "—";
 
 
@@ -1033,29 +803,22 @@ function actualizarEstado() {
         "pies"
     ).textContent =
 
-        pieI ||
-        pieD
-
+        (
+            pieI ||
+            pieD
+        )
             ? "✓"
-
             : "—";
 
-
-    /*
-       PECHO.
-    */
 
     const hombroI =
         obtenerPunto(5);
 
-
     const hombroD =
         obtenerPunto(6);
 
-
     const caderaI =
         obtenerPunto(11);
-
 
     const caderaD =
         obtenerPunto(12);
@@ -1071,11 +834,8 @@ function actualizarEstado() {
     document.getElementById(
         "pecho"
     ).textContent =
-
         pecho
-
             ? "✓"
-
             : "—";
 
 
@@ -1086,15 +846,12 @@ function actualizarEstado() {
         rodillaD
     ) {
 
-        estado.textContent =
-            "🟢 Cuerpo detectado";
+        if (!jugando) {
 
-    }
+            estado.textContent =
+                "🟢 Cuerpo detectado";
 
-    else {
-
-        estado.textContent =
-            "🔎 Buscando piernas...";
+        }
 
     }
 
@@ -1103,19 +860,29 @@ function actualizarEstado() {
 
 /* ==================================================
    HITBOXES
+==================================================
+
+   ⚠️ MUY IMPORTANTE:
+
+   LAS HITBOXES SIGUEN EXISTIENDO.
+
+   Simplemente NO se dibujan.
+
+   No hay canvas.
+   No hay círculos.
+   No hay líneas.
+   No hay puntos.
+
 ================================================== */
 
 function obtenerHitboxes() {
 
-
     const resultado = [];
 
 
-    /*
-       =========================
+    /* ----------------------------------------------
        RODILLA IZQUIERDA
-       =========================
-    */
+    ---------------------------------------------- */
 
     const rodillaI =
         obtenerPunto(13);
@@ -1125,17 +892,14 @@ function obtenerHitboxes() {
 
         resultado.push({
 
-            tipo:
-                "rodilla",
+            tipo: "rodilla",
 
-            x:
-                rodillaI.x,
+            x: rodillaI.x,
 
-            y:
-                rodillaI.y,
+            y: rodillaI.y,
 
             /*
-               HITBOX PEQUEÑA.
+               Hitbox ajustada.
             */
 
             radio:
@@ -1147,11 +911,9 @@ function obtenerHitboxes() {
     }
 
 
-    /*
-       =========================
+    /* ----------------------------------------------
        RODILLA DERECHA
-       =========================
-    */
+    ---------------------------------------------- */
 
     const rodillaD =
         obtenerPunto(14);
@@ -1161,14 +923,11 @@ function obtenerHitboxes() {
 
         resultado.push({
 
-            tipo:
-                "rodilla",
+            tipo: "rodilla",
 
-            x:
-                rodillaD.x,
+            x: rodillaD.x,
 
-            y:
-                rodillaD.y,
+            y: rodillaD.y,
 
             radio:
                 0.035 *
@@ -1179,17 +938,9 @@ function obtenerHitboxes() {
     }
 
 
-    /*
-       =========================
-       PIE IZQUIERDO
-       =========================
-
-       MoveNet detecta el tobillo.
-
-       Añadimos una pequeña zona
-       hacia abajo para representar
-       el pie.
-    */
+    /* ----------------------------------------------
+       PIE / TOBILLO IZQUIERDO
+    ---------------------------------------------- */
 
     const pieI =
         obtenerPunto(15);
@@ -1199,11 +950,14 @@ function obtenerHitboxes() {
 
         resultado.push({
 
-            tipo:
-                "pie",
+            tipo: "pie",
 
-            x:
-                pieI.x,
+            x: pieI.x,
+
+            /*
+               Extendemos ligeramente
+               hacia el pie.
+            */
 
             y:
                 pieI.y +
@@ -1218,11 +972,9 @@ function obtenerHitboxes() {
     }
 
 
-    /*
-       =========================
-       PIE DERECHO
-       =========================
-    */
+    /* ----------------------------------------------
+       PIE / TOBILLO DERECHO
+    ---------------------------------------------- */
 
     const pieD =
         obtenerPunto(16);
@@ -1232,11 +984,9 @@ function obtenerHitboxes() {
 
         resultado.push({
 
-            tipo:
-                "pie",
+            tipo: "pie",
 
-            x:
-                pieD.x,
+            x: pieD.x,
 
             y:
                 pieD.y +
@@ -1251,23 +1001,18 @@ function obtenerHitboxes() {
     }
 
 
-    /*
-       =========================
+    /* ----------------------------------------------
        PECHO
-       =========================
-    */
+    ---------------------------------------------- */
 
     const hombroI =
         obtenerPunto(5);
 
-
     const hombroD =
         obtenerPunto(6);
 
-
     const caderaI =
         obtenerPunto(11);
-
 
     const caderaD =
         obtenerPunto(12);
@@ -1280,34 +1025,25 @@ function obtenerHitboxes() {
         caderaD
     ) {
 
-
         resultado.push({
 
-            tipo:
-                "pecho",
-
+            tipo: "pecho",
 
             x:
-
                 (
                     hombroI.x +
                     hombroD.x +
                     caderaI.x +
                     caderaD.x
-                )
-                / 4,
-
+                ) / 4,
 
             y:
-
                 (
                     hombroI.y +
                     hombroD.y +
                     caderaI.y +
                     caderaD.y
-                )
-                / 4,
-
+                ) / 4,
 
             radio:
                 0.060 *
@@ -1318,6 +1054,12 @@ function obtenerHitboxes() {
     }
 
 
+    /*
+       DEVOLVEMOS LAS HITBOXES.
+
+       No las dibujamos.
+    */
+
     return resultado;
 
 }
@@ -1327,21 +1069,13 @@ function obtenerHitboxes() {
    DISTANCIA
 ================================================== */
 
-function distancia(
-    a,
-    b
-) {
-
+function distancia(a, b) {
 
     const dx =
-        a.x -
-        b.x;
-
+        a.x - b.x;
 
     const dy =
-        a.y -
-        b.y;
-
+        a.y - b.y;
 
     return Math.sqrt(
         dx * dx +
@@ -1356,22 +1090,15 @@ function distancia(
 ================================================== */
 
 function contactoTrayectoria(
-
     anterior,
-
     actual,
-
     objetivo,
-
     radio
-
 ) {
-
 
     const dx =
         actual.x -
         anterior.x;
-
 
     const dy =
         actual.y -
@@ -1388,14 +1115,14 @@ function contactoTrayectoria(
         0.0000001
     ) {
 
-
-        return
+        return (
             distancia(
                 actual,
                 objetivo
             )
             <=
-            radio;
+            radio
+        );
 
     }
 
@@ -1403,7 +1130,6 @@ function contactoTrayectoria(
     let t =
 
         (
-
             (
                 objetivo.x -
                 anterior.x
@@ -1448,14 +1174,16 @@ function contactoTrayectoria(
     };
 
 
-    return
+    return (
 
         distancia(
             puntoCercano,
             objetivo
         )
         <=
-        radio;
+        radio
+
+    );
 
 }
 
@@ -1466,45 +1194,27 @@ function contactoTrayectoria(
 
 const pelota = {
 
+    x: 0.50,
 
-    x:
-        0.50,
+    y: 0.15,
 
+    anteriorX: 0.50,
 
-    y:
-        0.15,
+    anteriorY: 0.15,
 
+    vx: 0,
 
-    anteriorX:
-        0.50,
-
-
-    anteriorY:
-        0.15,
-
-
-    vx:
-        0,
-
-
-    vy:
-        0,
-
+    vy: 0,
 
     /*
-       Tamaño del balón.
+       Radio del balón.
     */
 
-    radio:
-        0.032,
+    radio: 0.032,
 
+    activa: false,
 
-    activa:
-        false,
-
-
-    ultimoToque:
-        -10000
+    ultimoToque: -10000
 
 };
 
@@ -1513,35 +1223,24 @@ const pelota = {
    FÍSICA
 ================================================== */
 
-
-/*
-   Gravedad.
-*/
-
 const GRAVEDAD =
     0.00055;
 
 
 /*
-   IMPULSO.
-
-   Más fuerte que antes.
+   Impulso del toque.
 */
 
 const IMPULSO =
     0.024;
 
 
-/*
-   Límite.
-*/
-
 const MAX_IMPULSO =
     0.030;
 
 
 /*
-   Tiempo entre toques.
+   0,7 segundos.
 */
 
 const BLOQUEO =
@@ -1553,7 +1252,6 @@ const BLOQUEO =
 ================================================== */
 
 function comprobarContacto() {
-
 
     if (
         !jugando ||
@@ -1570,8 +1268,7 @@ function comprobarContacto() {
 
 
     /*
-       0,7 segundos sin poder
-       contar otro toque.
+       Bloqueo de 700 ms.
     */
 
     if (
@@ -1586,39 +1283,38 @@ function comprobarContacto() {
     }
 
 
+    /*
+       OBTENEMOS LAS HITBOXES.
+
+       Siguen funcionando.
+       Son invisibles.
+    */
+
     const hitboxes =
         obtenerHitboxes();
 
 
     /*
-       Prioridad:
+       Prioridad.
 
-       PIE
-       RODILLA
-       PECHO
+       PIE primero.
     */
 
     const prioridad = {
 
-        pie:
-            0,
+        pie: 0,
 
-        rodilla:
-            1,
+        rodilla: 1,
 
-        pecho:
-            2
+        pecho: 2
 
     };
 
 
     hitboxes.sort(
-
         (a, b) =>
-
             prioridad[a.tipo] -
             prioridad[b.tipo]
-
     );
 
 
@@ -1634,41 +1330,35 @@ function comprobarContacto() {
 
 
         /*
-           Trayectoria del balón.
+           Comprobamos el recorrido
+           completo del balón.
         */
 
         const cerca =
-
             contactoTrayectoria(
 
                 {
-
                     x:
                         pelota.anteriorX,
 
                     y:
                         pelota.anteriorY
-
                 },
 
                 {
-
                     x:
                         pelota.x,
 
                     y:
                         pelota.y
-
                 },
 
                 {
-
                     x:
                         h.x,
 
                     y:
                         h.y
-
                 },
 
                 radio
@@ -1684,16 +1374,13 @@ function comprobarContacto() {
 
 
         /*
-           ===========================
-           EL BALÓN DEBE ESTAR
-           MOVIÉNDOSE HACIA EL CUERPO
-           ===========================
+           El balón debe estar
+           acercándose al cuerpo.
         */
 
         const dx =
             h.x -
             pelota.anteriorX;
-
 
         const dy =
             h.y -
@@ -1703,7 +1390,6 @@ function comprobarContacto() {
         const movimientoX =
             pelota.x -
             pelota.anteriorX;
-
 
         const movimientoY =
             pelota.y -
@@ -1720,11 +1406,6 @@ function comprobarContacto() {
             movimientoY;
 
 
-        /*
-           Evita muchos falsos
-           positivos.
-        */
-
         if (
             producto <= 0
         ) {
@@ -1734,10 +1415,7 @@ function comprobarContacto() {
         }
 
 
-        realizarToque(
-            h
-        );
-
+        realizarToque(h);
 
         return;
 
@@ -1750,10 +1428,7 @@ function comprobarContacto() {
    REALIZAR TOQUE
 ================================================== */
 
-function realizarToque(
-    h
-) {
-
+function realizarToque(h) {
 
     const ahora =
         performance.now();
@@ -1782,25 +1457,16 @@ function realizarToque(
         contador;
 
 
-    /*
-       ===========================
-       FUERZA DEL TOQUE
-       ===========================
-    */
-
     let fuerza =
         IMPULSO;
 
 
     /*
        PIE.
-
-       Un poco más fuerte.
     */
 
     if (
-        h.tipo ===
-        "pie"
+        h.tipo === "pie"
     ) {
 
         fuerza *=
@@ -1814,8 +1480,7 @@ function realizarToque(
     */
 
     if (
-        h.tipo ===
-        "rodilla"
+        h.tipo === "rodilla"
     ) {
 
         fuerza *=
@@ -1826,13 +1491,10 @@ function realizarToque(
 
     /*
        PECHO.
-
-       Más suave.
     */
 
     if (
-        h.tipo ===
-        "pecho"
+        h.tipo === "pecho"
     ) {
 
         fuerza *=
@@ -1849,7 +1511,7 @@ function realizarToque(
 
 
     /*
-       BALÓN HACIA ARRIBA.
+       GRAN IMPULSO HACIA ARRIBA.
     */
 
     pelota.vy =
@@ -1857,8 +1519,8 @@ function realizarToque(
 
 
     /*
-       Mantener un poquito
-       del movimiento lateral.
+       Reducimos desplazamiento
+       lateral.
     */
 
     pelota.vx *=
@@ -1866,10 +1528,8 @@ function realizarToque(
 
 
     /*
-       Separación.
-
-       Evita que el balón se quede
-       dentro del cuerpo.
+       Sacamos el balón
+       ligeramente del cuerpo.
     */
 
     pelota.y -=
@@ -1890,10 +1550,7 @@ let ultimoTiempo =
     performance.now();
 
 
-function actualizarPelota(
-    tiempo
-) {
-
+function actualizarPelota(tiempo) {
 
     if (
         !pelota.activa
@@ -1917,7 +1574,8 @@ function actualizarPelota(
 
 
     /*
-       Evitar saltos grandes.
+       Evitamos saltos
+       demasiado grandes.
     */
 
     delta =
@@ -1933,13 +1591,11 @@ function actualizarPelota(
 
 
     /*
-       Guardamos posición
-       anterior.
+       Guardamos posición anterior.
     */
 
     pelota.anteriorX =
         pelota.x;
-
 
     pelota.anteriorY =
         pelota.y;
@@ -1962,18 +1618,16 @@ function actualizarPelota(
         pelota.vx *
         factor;
 
-
     pelota.y +=
         pelota.vy *
         factor;
 
 
     /*
-       AIRE.
+       RESISTENCIA DEL AIRE.
     */
 
     pelota.vx *=
-
         Math.pow(
             0.997,
             factor
@@ -1981,9 +1635,7 @@ function actualizarPelota(
 
 
     /*
-       ===========================
-       PARED IZQUIERDA
-       ===========================
+       PARED IZQUIERDA.
     */
 
     if (
@@ -1993,7 +1645,6 @@ function actualizarPelota(
 
         pelota.x =
             0.035;
-
 
         pelota.vx =
             Math.abs(
@@ -2006,9 +1657,7 @@ function actualizarPelota(
 
 
     /*
-       ===========================
-       PARED DERECHA
-       ===========================
+       PARED DERECHA.
     */
 
     if (
@@ -2018,7 +1667,6 @@ function actualizarPelota(
 
         pelota.x =
             0.965;
-
 
         pelota.vx =
             -Math.abs(
@@ -2031,9 +1679,8 @@ function actualizarPelota(
 
 
     /*
-       ===========================
-       SI SE CAE
-       ===========================
+       SI EL BALÓN CAE
+       DEMASIADO.
     */
 
     if (
@@ -2041,23 +1688,16 @@ function actualizarPelota(
         1.08
     ) {
 
-
         pelota.x =
-
             0.45 +
-
-            Math.random()
-            *
+            Math.random() *
             0.10;
-
 
         pelota.y =
             0.12;
 
-
         pelota.vx =
             0;
-
 
         pelota.vy =
             0.001;
@@ -2066,33 +1706,31 @@ function actualizarPelota(
 
 
     /*
-       COMPROBAR TOQUE.
+       COMPROBAR CONTACTO.
     */
 
     comprobarContacto();
 
 
     /*
-       ===========================
-       DIBUJAR BALÓN
-       ===========================
+       =================================
+       SOLO DIBUJAMOS EL BALÓN
+       =================================
     */
 
     balon.style.left =
-
         (
             pelota.x *
-            zona.clientWidth
+            zonaCamara.clientWidth
         )
         +
         "px";
 
 
     balon.style.top =
-
         (
             pelota.y *
-            zona.clientHeight
+            zonaCamara.clientHeight
         )
         +
         "px";
@@ -2104,22 +1742,17 @@ function actualizarPelota(
    BUCLE DE FÍSICA
 ================================================== */
 
-function bucle(
-    tiempo
-) {
-
+function bucle(tiempo) {
 
     actualizarPelota(
         tiempo
     );
-
 
     requestAnimationFrame(
         bucle
     );
 
 }
-
 
 requestAnimationFrame(
     bucle
@@ -2151,12 +1784,12 @@ empezar.onclick =
 
 
         /*
-           BALÓN INICIAL.
+           Posición inicial
+           del balón.
         */
 
         pelota.x =
             0.50;
-
 
         pelota.y =
             0.14;
@@ -2165,14 +1798,12 @@ empezar.onclick =
         pelota.anteriorX =
             pelota.x;
 
-
         pelota.anteriorY =
             pelota.y;
 
 
         pelota.vx =
             0;
-
 
         pelota.vy =
             0.001;
@@ -2181,6 +1812,10 @@ empezar.onclick =
         pelota.ultimoToque =
             -10000;
 
+
+        /*
+           GENERAR BALÓN.
+        */
 
         balon.style.display =
             "block";
@@ -2215,7 +1850,6 @@ reiniciar.onclick =
         pelota.vx =
             0;
 
-
         pelota.vy =
             0;
 
@@ -2231,6 +1865,10 @@ reiniciar.onclick =
         contadorTexto.textContent =
             "0";
 
+
+        /*
+           Ocultar balón.
+        */
 
         balon.style.display =
             "none";
@@ -2250,9 +1888,7 @@ reiniciar.onclick =
 
     };
 
-
 </script>
 
 </body>
-
 </html>
