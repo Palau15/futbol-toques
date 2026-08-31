@@ -1,639 +1,563 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport"
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-content="width=device-width, initial-scale=1, maximum-scale=1, user-
-scalable=no">
+  <title>Fútbol Toques ⚽</title>
 
-<title> Toques Virtuales</title>
-<style>
-* {
-box-sizing: border-box;
-}
-html, body {
-margin: 0;
-width: 100%;
-height: 100%;
-overflow: hidden;
-background: #000;
-font-family: Arial, sans-serif;
-}
-#app {
-position: relative;
-width: 100vw;
-height: 100vh;
-overflow: hidden;
-}
-#video {
-position: absolute;
-inset: 0;
-width: 100%;
-height: 100%;
-object-fit: cover;
-}
-#canvas {
-position: absolute;
-inset: 0;
-width: 100%;
-height: 100%;
-pointer-events: none;
-}
-#top {
-position: absolute;
-top: 20px;
+  <!-- MediaPipe -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js"></script>
 
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-left: 0;
-width: 100%;
-text-align: center;
-color: white;
-text-shadow: 0 2px 5px #000;
-z-index: 10;
-}
-#score {
-font-size: 58px;
-font-weight: bold;
-}
-#record {
-font-size: 18px;
-}
-#status {
-margin-top: 8px;
-font-size: 15px;
-}
-#bottom {
-position: absolute;
-bottom: 25px;
-left: 0;
-width: 100%;
-text-align: center;
-z-index: 20;
-}
-#ready {
-color: white;
-font-size: 15px;
-margin-bottom: 10px;
-text-shadow: 0 2px 5px #000;
-}
-button {
-border: 0;
-border-radius: 30px;
-padding: 15px 28px;
-font-size: 18px;
-font-weight: bold;
-background: white;
-color: #111;
-}
-#ball {
-position: absolute;
-width: 72px;
+    body {
+      margin: 0;
+      background: #111;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
 
+    h1 {
+      margin: 15px 0 5px;
+      font-size: 30px;
+    }
 
-height: 72px;
-font-size: 64px;
-line-height: 72px;
-text-align: center;
-z-index: 8;
-pointer-events: none;
-transform: translate(-50%, -50%);
-filter: drop-shadow(0 5px 5px rgba(0,0,0,.6));
-}
-</style>
+    #estado {
+      font-size: 16px;
+      color: #ccc;
+      margin-bottom: 10px;
+    }
+
+    #contador {
+      font-size: 60px;
+      font-weight: bold;
+      margin: 5px 0 15px;
+    }
+
+    #zonaCamara {
+      position: relative;
+      width: 95%;
+      max-width: 900px;
+      margin: auto;
+      overflow: hidden;
+      border-radius: 15px;
+      background: #000;
+    }
+
+    #video {
+      width: 100%;
+      display: block;
+      transform: scaleX(-1);
+    }
+
+    #canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      transform: scaleX(-1);
+    }
+
+    .botones {
+      margin: 15px auto;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: none;
+      border-radius: 12px;
+      padding: 14px 22px;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    #activar {
+      background: #00c853;
+      color: white;
+    }
+
+    #empezar {
+      background: #1976d2;
+      color: white;
+    }
+
+    #reiniciar {
+      background: #d32f2f;
+      color: white;
+    }
+
+    button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    #datos {
+      width: 95%;
+      max-width: 900px;
+      margin: 15px auto 30px;
+      padding: 15px;
+      border-radius: 15px;
+      background: #222;
+      text-align: left;
+    }
+
+    .dato {
+      margin: 8px 0;
+      font-size: 17px;
+    }
+
+    .punto {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+
+    .izq {
+      background: #2196f3;
+    }
+
+    .der {
+      background: #ff5252;
+    }
+  </style>
 </head>
+
 <body>
-<div id="app">
-<video id="video"
-autoplay
-muted
-playsinline></video>
-<canvas id="canvas"></canvas>
-<div id="ball"> </div>
-<div id="top">
-<div id="score">0</div>
-<div id="record">Récord: 0</div>
-<div id="status">Pulsa comenzar</div>
-</div>
-<div id="bottom">
-<div id="ready">
-Coloca el móvil en un lugar seguro y apunta hacia tus piernas.
-</div>
-<button id="start">
-COMENZAR
-</button>
-</div>
-</div>
-
-<script type="module">
-import {
-FilesetResolver,
-PoseLandmarker
-} from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/+esm";
-
-
-/* =========================
-ELEMENTOS
-========================= */
-const video =
-document.getElementById("video");
-const canvas =
-document.getElementById("canvas");
-const ctx =
-canvas.getContext("2d");
-const scoreText =
-document.getElementById("score");
-const recordText =
-document.getElementById("record");
-const statusText =
-document.getElementById("status");
-const startButton =
-document.getElementById("start");
-const ballElement =
-document.getElementById("ball");
-
-/* =========================
-VARIABLES
-========================= */
-let poseLandmarker = null;
-let running = false;
-let score = 0;
-let record =
-Number(
-localStorage.getItem("footballRecord") || 0
-);
-let lastVideoTime = -1;
-let leftFoot = null;
-let rightFoot = null;
-
-
-let previousLeft = null;
-let previousRight = null;
-let leftState = "away";
-let rightState = "away";
-let lastTouchTime = 0;
-
-/* =========================
-BALÓN
-========================= */
-let ballX = 50;
-let ballY = 65;
-let ballVelocityY = 0;
-const gravity = 0.25;
-
-/* =========================
-DETECCIÓN
-========================= */
-const TOUCH_DISTANCE = 0.115;
-const MIN_TOUCH_INTERVAL = 180;
-
-/* =========================
-RECORD
-========================= */
-recordText.textContent =
-"Récord: " + record;
-
-/* =========================
-CANVAS
-========================= */
-function resizeCanvas() {
-canvas.width =
-window.innerWidth;
-canvas.height =
-
-
-window.innerHeight;
-}
-window.addEventListener(
-"resize",
-resizeCanvas
-);
-resizeCanvas();
-
-/* =========================
-CARGAR MEDIAPIPE
-========================= */
-async function createPoseLandmarker() {
-statusText.textContent =
-"Cargando detector...";
-const vision =
-await FilesetResolver.forVisionTasks(
-"https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/wasm"
-);
-poseLandmarker =
-await PoseLandmarker.createFromOptions(
-vision,
-{
-baseOptions: {
-modelAssetPath:
-"https://storage.googleapis.com/mediapipe-models/pose_landmarker/
-
-pose_landmarker_lite/float16/1/pose_landmarker_lite.task",
-
-delegate: "GPU"
-},
-runningMode: "VIDEO",
-numPoses: 1,
-minPoseDetectionConfidence: 0.5,
-minPosePresenceConfidence: 0.5,
-minTrackingConfidence: 0.5
-}
-);
-}
-
-
-/* =========================
-CÁMARA
-========================= */
-async function startCamera() {
-try {
-statusText.textContent =
-"Solicitando cámara...";
-const stream =
-await navigator.mediaDevices
-.getUserMedia({
-video: {
-facingMode: {
-ideal: "environment"
-},
-width: {
-ideal: 1280
-},
-height: {
-ideal: 720
-},
-frameRate: {
-ideal: 30
-}
-},
-audio: false
-});
-video.srcObject = stream;
-await video.play();
-running = true;
-startButton.style.display =
-"none";
-statusText.textContent =
-"Detectando tus pies...";
-
-
-requestAnimationFrame(
-processFrame
-);
-}
-catch (error) {
-console.error(error);
-statusText.textContent =
-"No se pudo abrir la cámara.";
-alert(
-"No se pudo acceder a la cámara. " +
-"Comprueba los permisos y que la página usa HTTPS."
-);
-}
-}
-
-/* =========================
-DISTANCIA
-========================= */
-function distance(a, b) {
-const dx =
-a.x - b.x;
-const dy =
-a.y - b.y;
-return Math.sqrt(
-dx * dx + dy * dy
-);
-}
-
-/* =========================
-DETECTAR TOQUE
-========================= */
-function checkTouch(
-foot,
-previous,
-side
-) {
-if (!foot) return;
-
-
-const ball = {
-x: ballX / 100,
-y: ballY / 100
-};
-const d =
-distance(
-foot,
-ball
-);
-let movement = 0;
-if (previous) {
-movement =
-distance(
-foot,
-previous
-);
-}
-const now =
-performance.now();
-
-if (
-d < TOUCH_DISTANCE &&
-movement > 0.003 &&
-now - lastTouchTime >
-MIN_TOUCH_INTERVAL
-) {
-if (side === "left") {
-if (leftState === "away") {
-leftState = "near";
-registerTouch();
-}
-} else {
-if (rightState === "away") {
-rightState = "near";
-registerTouch();
-
-
-}
-}
-}
-
-if (
-d >
-TOUCH_DISTANCE * 1.5
-) {
-if (side === "left") {
-leftState = "away";
-} else {
-rightState = "away";
-}
-}
-}
-
-/* =========================
-SUMAR TOQUE
-========================= */
-function registerTouch() {
-score++;
-lastTouchTime =
-performance.now();
-scoreText.textContent =
-score;
-
-if (score > record) {
-record = score;
-localStorage.setItem(
-"footballRecord",
-record
-);
-recordText.textContent =
-"Récord: " + record;
-}
-
-
-ballVelocityY = -2.8;
-
-if (navigator.vibrate) {
-navigator.vibrate(25);
-}
-
-statusText.textContent =
-"¡TOQUE! ";
-}
-
-/* =========================
-DIBUJAR PIE
-========================= */
-function drawFoot(
-point,
-label
-) {
-if (!point) return;
-const x =
-point.x * canvas.width;
-const y =
-point.y * canvas.height;
-
-ctx.beginPath();
-ctx.arc(
-x,
-y,
-9,
-0,
-Math.PI * 2
-);
-ctx.fillStyle =
-"#00ff88";
-ctx.fill();
-
-ctx.font =
-"bold 14px Arial";
-
-
-ctx.fillStyle =
-"white";
-ctx.textAlign =
-"center";
-ctx.fillText(
-label,
-x,
-y - 14
-);
-}
-
-/* =========================
-ACTUALIZAR BALÓN
-========================= */
-function updateBall() {
-ballVelocityY += gravity;
-ballY += ballVelocityY;
-
-if (ballY > 70) {
-ballY = 70;
-ballVelocityY = 0;
-}
-
-ballElement.style.left =
-ballX + "%";
-ballElement.style.top =
-ballY + "%";
-}
-
-/* =========================
-PROCESAR CÁMARA
-========================= */
-async function processFrame() {
-if (!running) return;
-
-if (
-
-
-video.readyState >= 2 &&
-video.currentTime !==
-lastVideoTime
-) {
-lastVideoTime =
-video.currentTime;
-
-try {
-const result =
-poseLandmarker.detectForVideo(
-video,
-performance.now()
-);
-
-if (
-result.landmarks &&
-result.landmarks.length > 0
-) {
-const landmarks =
-result.landmarks[0];
-
-/*
-MediaPipe Pose:
-27 = tobillo izquierdo
-28 = tobillo derecho
-29 = talón izquierdo
-30 = talón derecho
-31 = punta izquierda
-32 = punta derecha
-*/
-const leftAnkle =
-landmarks[27];
-const rightAnkle =
-landmarks[28];
-const leftHeel =
-landmarks[29];
-const rightHeel =
-landmarks[30];
-const leftToe =
-
-
-landmarks[31];
-const rightToe =
-landmarks[32];
-
-/*
-Calculamos una posición
-aproximada del pie.
-*/
-leftFoot = {
-x:
-(
-leftToe.x +
-leftAnkle.x +
-leftHeel.x
-) / 3,
-y:
-(
-leftToe.y +
-leftAnkle.y +
-leftHeel.y
-) / 3
-};
-
-rightFoot = {
-x:
-(
-rightToe.x +
-rightAnkle.x +
-rightHeel.x
-) / 3,
-y:
-(
-rightToe.y +
-rightAnkle.y +
-rightHeel.y
-) / 3
-};
-
-ctx.clearRect(
-0,
-0,
-canvas.width,
-
-
-canvas.height
-);
-
-drawFoot(
-leftFoot,
-"IZQ"
-);
-drawFoot(
-rightFoot,
-"DER"
-);
-
-checkTouch(
-leftFoot,
-previousLeft,
-"left"
-);
-checkTouch(
-rightFoot,
-previousRight,
-"right"
-);
-
-previousLeft = {
-x: leftFoot.x,
-y: leftFoot.y
-};
-
-previousRight = {
-x: rightFoot.x,
-y: rightFoot.y
-};
-
-statusText.textContent =
-"Pies detectados ";
-} else {
-ctx.clearRect(
-0,
-0,
-canvas.width,
-canvas.height
-);
-
-
-statusText.textContent =
-"No veo tus piernas...";
-}
-}
-catch (error) {
-console.error(error);
-}
-}
-
-updateBall();
-requestAnimationFrame(
-processFrame
-);
-}
-
-/* =========================
-BOTÓN
-========================= */
-startButton.addEventListener(
-"click",
-async () => {
-startButton.disabled =
-true;
-try {
-await createPoseLandmarker();
-await startCamera();
-}
-catch (error) {
-console.error(error);
-statusText.textContent =
-"Error cargando MediaPipe.";
-startButton.disabled =
-false;
-}
-
-
-}
-);
+
+  <h1>⚽ Fútbol Toques</h1>
+
+  <div id="estado">
+    Pulsa «Activar cámara» para empezar
+  </div>
+
+  <div id="contador">0</div>
+
+  <div id="zonaCamara">
+    <video id="video" autoplay playsinline></video>
+    <canvas id="canvas"></canvas>
+  </div>
+
+  <div class="botones">
+    <button id="activar">📷 Activar cámara</button>
+    <button id="empezar" disabled>▶️ Empezar</button>
+    <button id="reiniciar">🔄 Reiniciar</button>
+  </div>
+
+  <div id="datos">
+
+    <div class="dato">
+      <span class="punto izq"></span>
+      🦵 Rodilla izquierda:
+      <strong id="rodillaIzq">No detectada</strong>
+    </div>
+
+    <div class="dato">
+      <span class="punto der"></span>
+      🦵 Rodilla derecha:
+      <strong id="rodillaDer">No detectada</strong>
+    </div>
+
+    <div class="dato">
+      🦶 Tobillo izquierdo:
+      <strong id="tobilloIzq">No detectado</strong>
+    </div>
+
+    <div class="dato">
+      🦶 Tobillo derecho:
+      <strong id="tobilloDer">No detectado</strong>
+    </div>
+
+  </div>
+
+<script>
+
+  const video = document.getElementById("video");
+  const canvas = document.getElementById("canvas");
+  const ctx = canvas.getContext("2d");
+
+  const activarBtn = document.getElementById("activar");
+  const empezarBtn = document.getElementById("empezar");
+  const reiniciarBtn = document.getElementById("reiniciar");
+
+  const estado = document.getElementById("estado");
+  const contadorTexto = document.getElementById("contador");
+
+  const rodillaIzqTexto = document.getElementById("rodillaIzq");
+  const rodillaDerTexto = document.getElementById("rodillaDer");
+
+  const tobilloIzqTexto = document.getElementById("tobilloIzq");
+  const tobilloDerTexto = document.getElementById("tobilloDer");
+
+  let contador = 0;
+  let empezado = false;
+
+  let ultimoYIzq = null;
+  let ultimoYDer = null;
+
+  let ultimoToqueIzq = 0;
+  let ultimoToqueDer = 0;
+
+  const TIEMPO_ENTRE_TOQUES = 350;
+
+  /*
+    MediaPipe Pose
+  */
+
+  const pose = new Pose({
+    locateFile: (file) => {
+      return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`;
+    }
+  });
+
+  pose.setOptions({
+    modelComplexity: 1,
+    smoothLandmarks: true,
+    enableSegmentation: false,
+    smoothSegmentation: true,
+    minDetectionConfidence: 0.5,
+    minTrackingConfidence: 0.5
+  });
+
+
+  /*
+    RESULTADOS DE MEDIAPIPE
+  */
+
+  pose.onResults((results) => {
+
+    if (!video.videoWidth || !video.videoHeight) {
+      return;
+    }
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (!results.poseLandmarks) {
+
+      estado.textContent = "No se detecta el cuerpo. Ponte delante de la cámara.";
+
+      rodillaIzqTexto.textContent = "No detectada";
+      rodillaDerTexto.textContent = "No detectada";
+
+      tobilloIzqTexto.textContent = "No detectado";
+      tobilloDerTexto.textContent = "No detectado";
+
+      return;
+    }
+
+    estado.textContent = "✅ Cuerpo detectado";
+
+    /*
+      Dibujar cuerpo
+    */
+
+    drawConnectors(
+      ctx,
+      results.poseLandmarks,
+      POSE_CONNECTIONS,
+      {
+        color: "#00ff00",
+        lineWidth: 4
+      }
+    );
+
+    drawLandmarks(
+      ctx,
+      results.poseLandmarks,
+      {
+        color: "#ffffff",
+        fillColor: "#00ff00",
+        lineWidth: 2,
+        radius: 5
+      }
+    );
+
+
+    /*
+      PUNTOS DE MEDIAPIPE
+
+      25 = rodilla izquierda
+      26 = rodilla derecha
+      27 = tobillo izquierdo
+      28 = tobillo derecho
+    */
+
+    const rodillaIzq = results.poseLandmarks[25];
+    const rodillaDer = results.poseLandmarks[26];
+
+    const tobilloIzq = results.poseLandmarks[27];
+    const tobilloDer = results.poseLandmarks[28];
+
+
+    /*
+      Mostrar detección
+    */
+
+    if (rodillaIzq && rodillaIzq.visibility > 0.5) {
+      rodillaIzqTexto.textContent = "Detectada ✅";
+    } else {
+      rodillaIzqTexto.textContent = "No detectada";
+    }
+
+    if (rodillaDer && rodillaDer.visibility > 0.5) {
+      rodillaDerTexto.textContent = "Detectada ✅";
+    } else {
+      rodillaDerTexto.textContent = "No detectada";
+    }
+
+    if (tobilloIzq && tobilloIzq.visibility > 0.5) {
+      tobilloIzqTexto.textContent = "Detectado ✅";
+    } else {
+      tobilloIzqTexto.textContent = "No detectado";
+    }
+
+    if (tobilloDer && tobilloDer.visibility > 0.5) {
+      tobilloDerTexto.textContent = "Detectado ✅";
+    } else {
+      tobilloDerTexto.textContent = "No detectado";
+    }
+
+
+    /*
+      CONTADOR DE TOQUES
+
+      Comprobamos el movimiento vertical
+      de los tobillos.
+    */
+
+    if (!empezado) {
+      if (tobilloIzq) {
+        ultimoYIzq = tobilloIzq.y;
+      }
+
+      if (tobilloDer) {
+        ultimoYDer = tobilloDer.y;
+      }
+
+      return;
+    }
+
+
+    /*
+      PIE IZQUIERDO
+    */
+
+    if (
+      tobilloIzq &&
+      tobilloIzq.visibility > 0.6 &&
+      ultimoYIzq !== null
+    ) {
+
+      const movimientoIzq = ultimoYIzq - tobilloIzq.y;
+
+      const ahora = Date.now();
+
+      if (
+        movimientoIzq > 0.025 &&
+        ahora - ultimoToqueIzq > TIEMPO_ENTRE_TOQUES
+      ) {
+
+        contador++;
+
+        ultimoToqueIzq = ahora;
+
+        actualizarContador();
+      }
+
+      ultimoYIzq = tobilloIzq.y;
+    }
+
+
+    /*
+      PIE DERECHO
+    */
+
+    if (
+      tobilloDer &&
+      tobilloDer.visibility > 0.6 &&
+      ultimoYDer !== null
+    ) {
+
+      const movimientoDer = ultimoYDer - tobilloDer.y;
+
+      const ahora = Date.now();
+
+      if (
+        movimientoDer > 0.025 &&
+        ahora - ultimoToqueDer > TIEMPO_ENTRE_TOQUES
+      ) {
+
+        contador++;
+
+        ultimoToqueDer = ahora;
+
+        actualizarContador();
+      }
+
+      ultimoYDer = tobilloDer.y;
+    }
+
+  });
+
+
+  /*
+    ACTUALIZAR CONTADOR
+  */
+
+  function actualizarContador() {
+    contadorTexto.textContent = contador;
+  }
+
+
+  /*
+    ACTIVAR CÁMARA
+  */
+
+  activarBtn.addEventListener("click", async () => {
+
+    try {
+
+      estado.textContent = "Solicitando permiso para la cámara...";
+
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: "user",
+          width: {
+            ideal: 1280
+          },
+          height: {
+            ideal: 720
+          }
+        },
+        audio: false
+      });
+
+      video.srcObject = stream;
+
+      await video.play();
+
+      estado.textContent =
+        "📷 Cámara activada. Ponte de cuerpo entero delante.";
+
+      empezarBtn.disabled = false;
+
+      activarBtn.disabled = true;
+
+      iniciarMediaPipe();
+
+    } catch (error) {
+
+      console.error(error);
+
+      estado.textContent =
+        "❌ No se ha podido activar la cámara.";
+
+      alert(
+        "No se ha podido acceder a la cámara. Comprueba que has dado permiso al navegador."
+      );
+
+    }
+
+  });
+
+
+  /*
+    INICIAR MEDIAPIPE
+  */
+
+  let camera;
+
+  function iniciarMediaPipe() {
+
+    camera = new Camera(video, {
+
+      onFrame: async () => {
+
+        await pose.send({
+          image: video
+        });
+
+      },
+
+      width: 1280,
+      height: 720
+
+    });
+
+    camera.start();
+
+  }
+
+
+  /*
+    EMPEZAR CONTADOR
+  */
+
+  empezarBtn.addEventListener("click", () => {
+
+    empezado = true;
+
+    contador = 0;
+
+    ultimoYIzq = null;
+    ultimoYDer = null;
+
+    ultimoToqueIzq = 0;
+    ultimoToqueDer = 0;
+
+    actualizarContador();
+
+    estado.textContent =
+      "🔥 ¡Empieza a hacer toques!";
+
+    empezarBtn.disabled = true;
+
+  });
+
+
+  /*
+    REINICIAR
+  */
+
+  reiniciarBtn.addEventListener("click", () => {
+
+    contador = 0;
+
+    empezado = false;
+
+    ultimoYIzq = null;
+    ultimoYDer = null;
+
+    ultimoToqueIzq = 0;
+    ultimoToqueDer = 0;
+
+    actualizarContador();
+
+    estado.textContent =
+      "Pulsa «Empezar» para comenzar.";
+
+    empezarBtn.disabled = !video.srcObject;
+
+  });
+
 </script>
+
 </body>
 </html>
