@@ -10,7 +10,7 @@
   content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
 >
 
-<title>⚽ Fútbol Toques 2.0</title>
+<title>Prueba MoveNet</title>
 
 
 <!-- TensorFlow.js -->
@@ -22,13 +22,8 @@
 
 <style>
 
-/* =====================================================
-   GENERAL
-===================================================== */
-
 * {
   box-sizing: border-box;
-  -webkit-tap-highlight-color: transparent;
 }
 
 html,
@@ -37,109 +32,75 @@ body {
   margin: 0;
   padding: 0;
 
-  width: 100%;
-
-  background: #101010;
+  background: #111;
 
   color: white;
 
-  font-family:
-    Arial,
-    Helvetica,
-    sans-serif;
+  font-family: Arial, sans-serif;
 
   text-align: center;
 
 }
 
-body {
-
-  overflow-x: hidden;
-
-}
 
 h1 {
 
-  margin:
-    10px
-    0
-    4px;
+  margin: 12px 0 5px;
 
-  font-size: 27px;
+  font-size: 25px;
 
 }
 
-
-/* =====================================================
-   ESTADO
-===================================================== */
 
 #estado {
 
-  min-height: 22px;
+  min-height: 25px;
 
-  color: #ccc;
+  color: #ddd;
 
-  font-size: 14px;
+  margin-bottom: 8px;
 
 }
 
 
-/* =====================================================
-   CONTADOR
-===================================================== */
+#puntosDetectados {
 
-#contador {
-
-  font-size: 62px;
+  font-size: 18px;
 
   font-weight: bold;
 
-  line-height: 1;
-
-  margin:
-    5px
-    0
-    10px;
-
-}
-
-
-/* =====================================================
-   CÁMARA
-===================================================== */
-
-#zonaCamara {
-
-  position: relative;
-
-  width: 96vw;
-
-  max-width: 900px;
-
-  margin: auto;
-
-  /*
-     Formato vertical.
-
-     Ayuda a que entre el cuerpo
-     completo cuando usamos el móvil
-     en vertical.
-  */
-
-  aspect-ratio: 9 / 16;
-
-  background: #000;
-
-  overflow: hidden;
-
-  border-radius: 16px;
+  margin-bottom: 8px;
 
 }
 
 
 /*
-   Vídeo
+   CONTENEDOR DE CÁMARA
+*/
+
+#camara {
+
+  position: relative;
+
+  width: 96vw;
+
+  max-width: 700px;
+
+  height: 75vh;
+
+  margin: auto;
+
+  background: black;
+
+  overflow: hidden;
+
+  border-radius: 15px;
+
+}
+
+
+/*
+   VÍDEO
 */
 
 #video {
@@ -154,80 +115,63 @@ h1 {
 
   object-fit: contain;
 
-  background: #000;
+  background: black;
 
 }
 
 
-/* =====================================================
-   BALÓN
-===================================================== */
+/*
+   CANVAS
 
-#balon {
+   Se coloca exactamente encima
+   del vídeo.
+*/
+
+#canvas {
 
   position: absolute;
 
-  width: 54px;
-  height: 54px;
+  left: 0;
+  top: 0;
 
-  margin-left: -27px;
-  margin-top: -27px;
-
-  display: none;
-
-  z-index: 50;
+  width: 100%;
+  height: 100%;
 
   pointer-events: none;
-
-  font-size: 47px;
-
-  line-height: 54px;
-
-  text-align: center;
-
-  filter:
-    drop-shadow(
-      0 4px 4px
-      rgba(0,0,0,.75)
-    );
 
 }
 
 
-/* =====================================================
+/*
    BOTONES
-===================================================== */
+*/
 
-.controles {
-
-  width: 96%;
-
-  max-width: 900px;
-
-  margin:
-    10px
-    auto;
+.botones {
 
   display: flex;
 
-  flex-wrap: wrap;
-
   justify-content: center;
 
+  flex-wrap: wrap;
+
   gap: 8px;
+
+  margin: 12px auto;
+
+  width: 95%;
 
 }
 
 
 button {
 
-  border: 0;
+  border: none;
 
-  border-radius: 12px;
+  border-radius: 10px;
 
-  padding:
-    11px
-    15px;
+  padding: 12px 16px;
+
+  background: #1976d2;
 
   color: white;
 
@@ -235,77 +179,43 @@ button {
 
   font-weight: bold;
 
-  cursor: pointer;
-
-  touch-action: manipulation;
-
 }
 
 
 button:disabled {
 
-  opacity: .4;
+  opacity: .45;
 
 }
 
 
 #activar {
 
-  background: #00a83b;
+  background: #00a844;
 
 }
 
 
-#empezar {
+#cambiar {
 
-  background: #1976d2;
-
-}
-
-
-#reiniciar {
-
-  background: #d32f2f;
+  background: #7b1fa2;
 
 }
 
-
-#cambiarCamara {
-
-  background: #6a1b9a;
-
-}
-
-
-#calibrar {
-
-  background: #ef6c00;
-
-}
-
-
-/* =====================================================
-   ZOOM
-===================================================== */
 
 #zoomBox {
 
-  width: 94%;
+  width: 90%;
 
   max-width: 500px;
 
-  margin:
-    8px
-    auto
-    14px;
+  margin: 10px auto 20px;
 
-  padding:
-    9px
-    12px;
-
-  border-radius: 12px;
+  padding: 10px;
 
   background: #222;
+
+  border-radius: 12px;
 
 }
 
@@ -317,81 +227,50 @@ button:disabled {
 }
 
 
-/* =====================================================
-   INFORMACIÓN
-===================================================== */
+/*
+   LEYENDA
+*/
 
-#info {
+#leyenda {
 
   width: 94%;
 
-  max-width: 700px;
+  max-width: 600px;
 
-  margin:
-    10px
-    auto
-    25px;
+  margin: 15px auto;
 
-  padding: 10px;
+  padding: 12px;
 
-  border-radius: 14px;
+  background: #1d1d1d;
 
-  background: #202020;
+  border-radius: 12px;
 
   text-align: left;
 
-}
+  line-height: 1.5;
 
-
-.fila {
-
-  display: flex;
-
-  justify-content: space-between;
-
-  padding: 5px;
-
-  border-bottom:
-    1px solid
-    #333;
+  font-size: 14px;
 
 }
 
 
-.ok {
+.verde {
 
-  color: #5cff78;
-
-}
-
-
-.no {
-
-  color: #888;
+  color: #00ff55;
 
 }
 
 
-/* =====================================================
-   AYUDA
-===================================================== */
+.amarillo {
 
-#ayuda {
+  color: #ffee00;
 
-  width: 94%;
+}
 
-  max-width: 700px;
 
-  margin:
-    0
-    auto
-    25px;
+.rojo {
 
-  color: #999;
-
-  font-size: 13px;
-
-  line-height: 1.4;
+  color: #ff5555;
 
 }
 
@@ -404,7 +283,7 @@ button:disabled {
 
 
 <h1>
-  ⚽ Fútbol Toques 2.0
+  🧠 Prueba MoveNet
 </h1>
 
 
@@ -413,31 +292,29 @@ button:disabled {
 </div>
 
 
-<div id="contador">
-  0
+<div id="puntosDetectados">
+  Puntos detectados: 0
 </div>
 
 
-<div id="zonaCamara">
-
+<div id="camara">
 
   <video
     id="video"
     autoplay
-    playsinline
     muted
+    playsinline
   ></video>
 
 
-  <div id="balon">
-    ⚽
-  </div>
-
+  <canvas
+    id="canvas"
+  ></canvas>
 
 </div>
 
 
-<div class="controles">
+<div class="botones">
 
 
   <button id="activar">
@@ -446,31 +323,10 @@ button:disabled {
 
 
   <button
-    id="empezar"
+    id="cambiar"
     disabled
   >
-    ▶️ Empezar
-  </button>
-
-
-  <button id="reiniciar">
-    🔄 Reiniciar
-  </button>
-
-
-  <button
-    id="cambiarCamara"
-    disabled
-  >
-    🔁 Cámara
-  </button>
-
-
-  <button
-    id="calibrar"
-    disabled
-  >
-    🎯 Calibrar
+    🔄 Cambiar cámara
   </button>
 
 
@@ -480,6 +336,8 @@ button:disabled {
 <div id="zoomBox">
 
   🔍 Zoom
+
+  <br>
 
   <input
     id="zoom"
@@ -491,100 +349,44 @@ button:disabled {
     disabled
   >
 
-</div>
+  <br>
 
-
-<div id="info">
-
-
-  <div class="fila">
-
-    <span>
-      🦵 Rodilla izquierda
-    </span>
-
-    <span
-      id="rodillaI"
-      class="no"
-    >
-      —
-    </span>
-
-  </div>
-
-
-  <div class="fila">
-
-    <span>
-      🦵 Rodilla derecha
-    </span>
-
-    <span
-      id="rodillaD"
-      class="no"
-    >
-      —
-    </span>
-
-  </div>
-
-
-  <div class="fila">
-
-    <span>
-      🦶 Pie izquierdo
-    </span>
-
-    <span
-      id="pieI"
-      class="no"
-    >
-      —
-    </span>
-
-  </div>
-
-
-  <div class="fila">
-
-    <span>
-      🦶 Pie derecho
-    </span>
-
-    <span
-      id="pieD"
-      class="no"
-    >
-      —
-    </span>
-
-  </div>
-
-
-  <div class="fila">
-
-    <span>
-      🫁 Pecho
-    </span>
-
-    <span
-      id="pecho"
-      class="no"
-    >
-      —
-    </span>
-
-  </div>
-
+  <span id="zoomTexto">
+    0,5×
+  </span>
 
 </div>
 
 
-<div id="ayuda">
+<div id="leyenda">
 
-  Coloca el móvil suficientemente lejos para
-  que aparezca todo tu cuerpo. Después pulsa
-  «Calibrar» y «Empezar».
+  <b>Qué tienes que comprobar:</b>
+
+  <br><br>
+
+  🟢 <span class="verde">
+  Puntos verdes
+  </span>
+  = partes del cuerpo detectadas.
+
+  <br>
+
+  🟡 <span class="amarillo">
+  Amarillo
+  </span>
+  = rodillas.
+
+  <br>
+
+  🔴 <span class="rojo">
+  Rojo
+  </span>
+  = tobillos/pies.
+
+  <br><br>
+
+  Ponte a una distancia donde aparezcas
+  <b>entero</b> en la cámara.
 
 </div>
 
@@ -601,15 +403,15 @@ const video =
   );
 
 
-const zonaCamara =
+const canvas =
   document.getElementById(
-    "zonaCamara"
+    "canvas"
   );
 
 
-const balon =
-  document.getElementById(
-    "balon"
+const ctx =
+  canvas.getContext(
+    "2d"
   );
 
 
@@ -619,9 +421,9 @@ const estado =
   );
 
 
-const contadorTexto =
+const puntosTexto =
   document.getElementById(
-    "contador"
+    "puntosDetectados"
   );
 
 
@@ -631,27 +433,9 @@ const activar =
   );
 
 
-const empezar =
+const cambiar =
   document.getElementById(
-    "empezar"
-  );
-
-
-const reiniciar =
-  document.getElementById(
-    "reiniciar"
-  );
-
-
-const cambiarCamara =
-  document.getElementById(
-    "cambiarCamara"
-  );
-
-
-const calibrar =
-  document.getElementById(
-    "calibrar"
+    "cambiar"
   );
 
 
@@ -661,145 +445,81 @@ const zoom =
   );
 
 
+const zoomTexto =
+  document.getElementById(
+    "zoomTexto"
+  );
+
+
 /* =====================================================
-   ESTADO GENERAL
+   VARIABLES
 ===================================================== */
 
 let stream = null;
 
-let trackVideo = null;
-
-let capacidadesVideo = null;
-
 let detector = null;
-
-let puntos = [];
-
-let jugando = false;
-
-let contador = 0;
 
 let camaraTrasera = true;
 
-let rafDeteccion = null;
+let track = null;
 
+let capabilities = null;
 
-/*
-   Tamaño estimado del cuerpo.
-
-   Se utiliza solamente para adaptar
-   ligeramente las hitboxes.
-*/
-
-let escalaCuerpo = 1;
+let animacion = null;
 
 
 /* =====================================================
-   MOVIMIENTO
+   PUNTOS DE MOVENET
+=====================================================
+
+   MoveNet usa:
+
+   0  nariz
+   1  ojo izquierdo
+   2  ojo derecho
+   3  oreja izquierda
+   4  oreja derecha
+
+   5  hombro izquierdo
+   6  hombro derecho
+
+   7  codo izquierdo
+   8  codo derecho
+
+   9  muñeca izquierda
+   10 muñeca derecha
+
+   11 cadera izquierda
+   12 cadera derecha
+
+   13 rodilla izquierda
+   14 rodilla derecha
+
+   15 tobillo izquierdo
+   16 tobillo derecho
+
 ===================================================== */
-
-/*
-   Historial de puntos.
-
-   MoveNet puede producir pequeños
-   movimientos aunque estés quieto.
-
-   El suavizado reduce esos temblores.
-*/
-
-const historial = {};
-
-
-const SUAVIZADO_POSICION =
-  0.55;
-
-
-const SUAVIZADO_VELOCIDAD =
-  0.35;
-
-
-function puntoSuavizado(
-  nombre,
-  x,
-  y
-) {
-
-  if (!historial[nombre]) {
-
-    historial[nombre] = {
-
-      x: x,
-      y: y,
-
-      vx: 0,
-      vy: 0
-
-    };
-
-    return historial[nombre];
-
-  }
-
-
-  const h =
-    historial[nombre];
-
-
-  const movimientoX =
-    x - h.x;
-
-
-  const movimientoY =
-    y - h.y;
-
-
-  h.vx =
-    h.vx *
-    (1 - SUAVIZADO_VELOCIDAD)
-    +
-    movimientoX *
-    SUAVIZADO_VELOCIDAD;
-
-
-  h.vy =
-    h.vy *
-    (1 - SUAVIZADO_VELOCIDAD)
-    +
-    movimientoY *
-    SUAVIZADO_VELOCIDAD;
-
-
-  h.x +=
-    movimientoX *
-    SUAVIZADO_POSICION;
-
-
-  h.y +=
-    movimientoY *
-    SUAVIZADO_POSICION;
-
-
-  return h;
-
-}
 
 
 /* =====================================================
-   MOVENET
+   CARGAR MOVENET
 ===================================================== */
 
-async function cargarModelo() {
+async function cargarMoveNet() {
 
   estado.textContent =
-    "🧠 Preparando detector...";
+    "🧠 Cargando MoveNet...";
 
+
+  /*
+     Preparar TensorFlow.
+  */
 
   await tf.ready();
 
 
   /*
-     WebGL suele ser más rápido
-     en móviles compatibles.
+     Intentar WebGL.
   */
 
   try {
@@ -819,6 +539,10 @@ async function cargarModelo() {
     );
 
   }
+
+
+  estado.textContent =
+    "🧠 Creando detector...";
 
 
   detector =
@@ -843,19 +567,19 @@ async function cargarModelo() {
 
 
   estado.textContent =
-    "🧠 Detector listo";
+    "✅ MoveNet preparado";
 
 }
 
 
 /* =====================================================
-   CÁMARA
+   ACTIVAR CÁMARA
 ===================================================== */
 
 async function iniciarCamara() {
 
   /*
-     Cerrar cámara anterior.
+     Parar cámara anterior.
   */
 
   if (stream) {
@@ -863,8 +587,8 @@ async function iniciarCamara() {
     stream
       .getTracks()
       .forEach(
-        t =>
-          t.stop()
+        pista =>
+          pista.stop()
       );
 
   }
@@ -874,6 +598,10 @@ async function iniciarCamara() {
     camaraTrasera
       ? "environment"
       : "user";
+
+
+  estado.textContent =
+    "📷 Abriendo cámara...";
 
 
   try {
@@ -892,22 +620,17 @@ async function iniciarCamara() {
 
             },
 
-            /*
-               Pedimos resolución alta,
-               pero sin exigirla.
-            */
-
             width: {
 
               ideal:
-                1920
+                1280
 
             },
 
             height: {
 
               ideal:
-                1080
+                720
 
             },
 
@@ -933,29 +656,48 @@ async function iniciarCamara() {
     await video.play();
 
 
-    trackVideo =
+    /*
+       Obtener pista.
+    */
+
+    track =
       stream
         .getVideoTracks()[0];
 
 
-    capacidadesVideo =
-      trackVideo
+    /*
+       Obtener capacidades
+       del móvil.
+    */
+
+    capabilities =
+      track
         .getCapabilities();
+
+
+    /*
+       Preparar zoom.
+    */
+
+    prepararZoom();
+
+
+    /*
+       Cargar MoveNet.
+    */
+
+    if (!detector) {
+
+      await cargarMoveNet();
+
+    }
 
 
     activar.disabled =
       true;
 
 
-    empezar.disabled =
-      false;
-
-
-    cambiarCamara.disabled =
-      false;
-
-
-    calibrar.disabled =
+    cambiar.disabled =
       false;
 
 
@@ -963,25 +705,11 @@ async function iniciarCamara() {
       false;
 
 
-    configurarZoom();
-
-
-    if (!detector) {
-
-      await cargarModelo();
-
-    }
-
-
-    actualizarEspejo();
+    estado.textContent =
+      "👤 Buscando cuerpo...";
 
 
     comenzarDeteccion();
-
-
-    estado.textContent =
-      "📷 Cámara lista";
-
 
   }
 
@@ -991,11 +719,11 @@ async function iniciarCamara() {
 
 
     estado.textContent =
-      "❌ Error con la cámara";
+      "❌ No se pudo abrir la cámara";
 
 
     alert(
-      "No se pudo acceder a la cámara. Revisa los permisos del navegador."
+      "No se pudo acceder a la cámara. Comprueba que has permitido el acceso."
     );
 
   }
@@ -1007,63 +735,79 @@ async function iniciarCamara() {
    ZOOM
 ===================================================== */
 
-function configurarZoom() {
+function prepararZoom() {
 
   /*
-     Intentar zoom 0.5x.
-
-     Algunos móviles no permiten
-     zoom inferior a 1.
+     Intentar que empiece en
+     0,5×.
   */
 
-  zoom.value =
-    "0.5";
-
-
   if (
-    capacidadesVideo &&
-    capacidadesVideo.zoom
+    capabilities &&
+    capabilities.zoom
   ) {
 
     zoom.min =
       Math.max(
         0.5,
-        capacidadesVideo.zoom.min
+        capabilities.zoom.min
       );
 
 
     zoom.max =
-      capacidadesVideo.zoom.max;
+      capabilities.zoom.max;
 
 
     zoom.step =
-      capacidadesVideo.zoom.step ||
+      capabilities.zoom.step ||
       0.1;
 
 
-    /*
-       Intentar 0.5.
-    */
-
     if (
       0.5 >=
-      capacidadesVideo.zoom.min &&
+      capabilities.zoom.min &&
       0.5 <=
-      capacidadesVideo.zoom.max
+      capabilities.zoom.max
     ) {
 
       zoom.value =
-        "0.5";
+        0.5;
 
     }
 
   }
 
+  else {
+
+    /*
+       El móvil no permite
+       controlar el zoom desde
+       el navegador.
+    */
+
+    zoom.min =
+      0.5;
+
+    zoom.max =
+      3;
+
+    zoom.value =
+      0.5;
+
+  }
+
+
+  zoomTexto.textContent =
+    Number(
+      zoom.value
+    ).toFixed(1)
+    + "×";
+
 }
 
 
 /* =====================================================
-   APLICAR ZOOM
+   CAMBIAR ZOOM
 ===================================================== */
 
 zoom.addEventListener(
@@ -1076,19 +820,24 @@ zoom.addEventListener(
       );
 
 
+    zoomTexto.textContent =
+      valor.toFixed(1)
+      + "×";
+
+
     /*
-       Zoom REAL del móvil.
+       Zoom real de la cámara.
     */
 
     if (
-      trackVideo &&
-      capacidadesVideo &&
-      capacidadesVideo.zoom
+      track &&
+      capabilities &&
+      capabilities.zoom
     ) {
 
       try {
 
-        await trackVideo
+        await track
           .applyConstraints({
 
             advanced: [
@@ -1102,15 +851,14 @@ zoom.addEventListener(
 
           });
 
-
         return;
 
       }
 
-      catch (e) {
+      catch (error) {
 
         console.log(
-          "No se pudo aplicar zoom real"
+          "Zoom real no disponible"
         );
 
       }
@@ -1119,13 +867,8 @@ zoom.addEventListener(
 
 
     /*
-       Si el móvil no tiene
-       control de zoom desde
-       el navegador, evitamos
-       ampliar demasiado.
-
-       El objetivo principal es
-       mantener el cuerpo entero.
+       Zoom digital como
+       último recurso.
     */
 
     const escala =
@@ -1154,29 +897,6 @@ zoom.addEventListener(
 
 
 /* =====================================================
-   ESPEJO
-===================================================== */
-
-function actualizarEspejo() {
-
-  if (camaraTrasera) {
-
-    video.style.transform =
-      "none";
-
-  }
-
-  else {
-
-    video.style.transform =
-      "scaleX(-1)";
-
-  }
-
-}
-
-
-/* =====================================================
    ACTIVAR
 ===================================================== */
 
@@ -1192,15 +912,11 @@ activar.onclick =
    CAMBIAR CÁMARA
 ===================================================== */
 
-cambiarCamara.onclick =
+cambiar.onclick =
   async () => {
 
     camaraTrasera =
       !camaraTrasera;
-
-
-    estado.textContent =
-      "📷 Cambiando cámara...";
 
 
     await iniciarCamara();
@@ -1209,15 +925,38 @@ cambiarCamara.onclick =
 
 
 /* =====================================================
+   PREPARAR CANVAS
+===================================================== */
+
+function prepararCanvas() {
+
+  if (
+    canvas.width !==
+    video.videoWidth
+  ) {
+
+    canvas.width =
+      video.videoWidth;
+
+
+    canvas.height =
+      video.videoHeight;
+
+  }
+
+}
+
+
+/* =====================================================
    DETECCIÓN
 ===================================================== */
 
 function comenzarDeteccion() {
 
-  if (rafDeteccion) {
+  if (animacion) {
 
     cancelAnimationFrame(
-      rafDeteccion
+      animacion
     );
 
   }
@@ -1230,7 +969,7 @@ function comenzarDeteccion() {
       video.readyState < 2
     ) {
 
-      rafDeteccion =
+      animacion =
         requestAnimationFrame(
           detectar
         );
@@ -1238,6 +977,9 @@ function comenzarDeteccion() {
       return;
 
     }
+
+
+    prepararCanvas();
 
 
     try {
@@ -1260,27 +1002,34 @@ function comenzarDeteccion() {
           );
 
 
+      ctx.clearRect(
+
+        0,
+        0,
+        canvas.width,
+        canvas.height
+
+      );
+
+
       if (
-        poses &&
         poses.length > 0
       ) {
 
-        puntos =
+        dibujarPuntos(
           poses[0]
-            .keypoints ||
-          [];
-
-
-        actualizarCuerpo();
+        );
 
       }
 
       else {
 
-        puntos = [];
+        puntosTexto.textContent =
+          "Puntos detectados: 0";
+
 
         estado.textContent =
-          "👤 Buscando cuerpo...";
+          "🔎 No encuentro el cuerpo";
 
       }
 
@@ -1288,12 +1037,15 @@ function comenzarDeteccion() {
 
     catch (error) {
 
-      console.log(error);
+      console.error(error);
+
+      estado.textContent =
+        "⚠️ Error detectando";
 
     }
 
 
-    rafDeteccion =
+    animacion =
       requestAnimationFrame(
         detectar
       );
@@ -1307,1573 +1059,214 @@ function comenzarDeteccion() {
 
 
 /* =====================================================
-   OBTENER PUNTO
+   DIBUJAR PUNTOS
 ===================================================== */
 
-function obtenerPunto(
-  indice
+function dibujarPuntos(
+  pose
 ) {
 
-  const p =
-    puntos[indice];
+  const keypoints =
+    pose.keypoints;
 
 
-  if (!p)
-    return null;
+  let cantidad =
+    0;
 
 
   /*
-     Umbral suficientemente bajo
-     para no perder las piernas.
+     Recorrer los 17 puntos.
   */
 
-  if (
-    p.score !== undefined &&
-    p.score < 0.18
-  ) {
-
-    return null;
-
-  }
-
-
-  if (
-    p.x === undefined ||
-    p.y === undefined
-  ) {
-
-    return null;
-
-  }
-
-
-  if (
-    !video.videoWidth ||
-    !video.videoHeight
-  ) {
-
-    return null;
-
-  }
-
-
-  return puntoSuavizado(
-
-    "p" + indice,
-
-    p.x /
-      video.videoWidth,
-
-    p.y /
-      video.videoHeight
-
-  );
-
-}
-
-
-/* =====================================================
-   ACTUALIZAR CUERPO
-===================================================== */
-
-function actualizarCuerpo() {
-
-  const rodillaI =
-    obtenerPunto(13);
-
-
-  const rodillaD =
-    obtenerPunto(14);
-
-
-  const tobilloI =
-    obtenerPunto(15);
-
-
-  const tobilloD =
-    obtenerPunto(16);
-
-
-  actualizarTexto(
-    "rodillaI",
-    rodillaI
-  );
-
-
-  actualizarTexto(
-    "rodillaD",
-    rodillaD
-  );
-
-
-  actualizarTexto(
-    "pieI",
-    tobilloI
-  );
-
-
-  actualizarTexto(
-    "pieD",
-    tobilloD
-  );
-
-
-  const hombroI =
-    obtenerPunto(5);
-
-
-  const hombroD =
-    obtenerPunto(6);
-
-
-  const caderaI =
-    obtenerPunto(11);
-
-
-  const caderaD =
-    obtenerPunto(12);
-
-
-  if (
-    hombroI &&
-    hombroD &&
-    caderaI &&
-    caderaD
-  ) {
-
-    const pecho = {
-
-      x:
-        (
-          hombroI.x +
-          hombroD.x +
-          caderaI.x +
-          caderaD.x
-        ) / 4,
-
-      y:
-        (
-          hombroI.y +
-          hombroD.y +
-          caderaI.y +
-          caderaD.y
-        ) / 4
-
-    };
-
-
-    actualizarTexto(
-      "pecho",
-      pecho
-    );
-
-  }
-
-  else {
-
-    actualizarTexto(
-      "pecho",
-      null
-    );
-
-  }
-
-}
-
-
-/* =====================================================
-   TEXTO
-===================================================== */
-
-function actualizarTexto(
-  id,
-  punto
-) {
-
-  const elemento =
-    document.getElementById(id);
-
-
-  if (punto) {
-
-    elemento.textContent =
-      "✓";
-
-    elemento.className =
-      "ok";
-
-  }
-
-  else {
-
-    elemento.textContent =
-      "—";
-
-    elemento.className =
-      "no";
-
-  }
-
-}
-
-
-/* =====================================================
-   CALIBRACIÓN
-===================================================== */
-
-function recalibrar() {
-
-  const cabeza =
-    obtenerPunto(0);
-
-
-  const rodillaI =
-    obtenerPunto(13);
-
-
-  const rodillaD =
-    obtenerPunto(14);
-
-
-  const tobilloI =
-    obtenerPunto(15);
-
-
-  const tobilloD =
-    obtenerPunto(16);
-
-
-  /*
-     Para calibrar necesitamos
-     al menos una pierna.
-  */
-
-  if (
-    !cabeza ||
-    (!tobilloI && !tobilloD)
-  ) {
-
-    estado.textContent =
-      "⚠️ Necesito verte entero";
-
-    return;
-
-  }
-
-
-  const tobillo =
-    tobilloI &&
-    tobilloD
-
-      ? (
-          tobilloI.y >
-          tobilloD.y
-
-          ? tobilloI
-          : tobilloD
-        )
-
-      : (
-          tobilloI ||
-          tobilloD
-        );
-
-
-  const altura =
-    Math.abs(
-      tobillo.y -
-      cabeza.y
-    );
-
-
-  /*
-     Factor moderado.
-
-     Nunca hacemos hitboxes enormes.
-  */
-
-  escalaCuerpo =
-    Math.max(
-      0.80,
-      Math.min(
-        1.20,
-        altura / 0.80
-      )
-    );
-
-
-  estado.textContent =
-    "🎯 Calibración realizada";
-
-}
-
-
-/* =====================================================
-   PELOTA
-===================================================== */
-
-const pelota = {
-
-  x: 0.50,
-
-  y: 0.15,
-
-  anteriorX: 0.50,
-
-  anteriorY: 0.15,
-
-  vx: 0,
-
-  vy: 0,
-
-  radio: 0.030,
-
-  activa: false,
-
-  ultimoToque: -10000,
-
-  ultimoTipo: ""
-
-};
-
-
-/* =====================================================
-   FÍSICA
-===================================================== */
-
-
-/*
-   Gravedad reducida.
-
-   Hace que el balón tenga una
-   trayectoria más cómoda.
-*/
-
-const GRAVEDAD =
-  0.00058;
-
-
-/*
-   Toque alto.
-
-   El balón sube bastante.
-*/
-
-const IMPULSO_BASE =
-  0.023;
-
-
-/*
-   Máximo para evitar
-   velocidades absurdas.
-*/
-
-const IMPULSO_MAX =
-  0.030;
-
-
-/*
-   700 ms exactos.
-*/
-
-const TIEMPO_BLOQUEO =
-  700;
-
-
-/*
-   Rebote lateral suave.
-*/
-
-const REBOTE_PARED =
-  0.72;
-
-
-/* =====================================================
-   HITBOX DE RODILLA
-===================================================== */
-
-function hitboxRodilla(
-  punto,
-  nombre
-) {
-
-  if (!punto)
-    return null;
-
-
-  return {
-
-    tipo:
-      nombre,
-
-    x:
-      punto.x,
-
-    y:
-      punto.y,
-
-    /*
-       Bastante pequeña.
-
-       Esto evita los falsos
-       contactos que tenías antes.
-    */
-
-    radio:
-      0.045 *
-      escalaCuerpo
-
-  };
-
-}
-
-
-/* =====================================================
-   HITBOX DE PIE
-===================================================== */
-
-function hitboxPie(
-  tobillo,
-  nombre
-) {
-
-  if (!tobillo)
-    return null;
-
-
-  /*
-     MoveNet nos da el tobillo,
-     pero no una punta de pie
-     fiable en estos índices.
-
-     Por eso creamos una pequeña
-     zona justo por debajo del tobillo.
-  */
-
-  return {
-
-    tipo:
-      nombre,
-
-    x:
-      tobillo.x,
-
-    y:
-      tobillo.y +
-      0.020,
-
-    /*
-       Algo mayor que la rodilla,
-       pero todavía moderada.
-    */
-
-    radio:
-      0.055 *
-      escalaCuerpo
-
-  };
-
-}
-
-
-/* =====================================================
-   PECHO
-===================================================== */
-
-function hitboxPecho() {
-
-  const hombroI =
-    obtenerPunto(5);
-
-
-  const hombroD =
-    obtenerPunto(6);
-
-
-  const caderaI =
-    obtenerPunto(11);
-
-
-  const caderaD =
-    obtenerPunto(12);
-
-
-  if (
-    !hombroI ||
-    !hombroD ||
-    !caderaI ||
-    !caderaD
-  ) {
-
-    return null;
-
-  }
-
-
-  return {
-
-    tipo:
-      "pecho",
-
-    x:
-      (
-        hombroI.x +
-        hombroD.x +
-        caderaI.x +
-        caderaD.x
-      ) / 4,
-
-    y:
-      (
-        hombroI.y +
-        hombroD.y +
-        caderaI.y +
-        caderaD.y
-      ) / 4,
-
-    radio:
-      0.090 *
-      escalaCuerpo
-
-  };
-
-}
-
-
-/* =====================================================
-   TODAS LAS HITBOXES
-===================================================== */
-
-function obtenerHitboxes() {
-
-  const resultado = [];
-
-
-  const rI =
-    hitboxRodilla(
-      obtenerPunto(13),
-      "rodilla izquierda"
-    );
-
-
-  const rD =
-    hitboxRodilla(
-      obtenerPunto(14),
-      "rodilla derecha"
-    );
-
-
-  const pI =
-    hitboxPie(
-      obtenerPunto(15),
-      "pie izquierdo"
-    );
-
-
-  const pD =
-    hitboxPie(
-      obtenerPunto(16),
-      "pie derecho"
-    );
-
-
-  const pecho =
-    hitboxPecho();
-
-
-  if (pI)
-    resultado.push(pI);
-
-
-  if (pD)
-    resultado.push(pD);
-
-
-  if (rI)
-    resultado.push(rI);
-
-
-  if (rD)
-    resultado.push(rD);
-
-
-  if (pecho)
-    resultado.push(pecho);
-
-
-  return resultado;
-
-}
-
-
-/* =====================================================
-   DISTANCIA
-===================================================== */
-
-function distancia(
-  a,
-  b
-) {
-
-  const dx =
-    a.x - b.x;
-
-
-  const dy =
-    a.y - b.y;
-
-
-  return Math.sqrt(
-    dx * dx +
-    dy * dy
-  );
-
-}
-
-
-/* =====================================================
-   PUNTO MÁS CERCANO
-===================================================== */
-
-function puntoMasCercano(
-  hitbox
-) {
-
-  return {
-
-    x:
-      hitbox.x,
-
-    y:
-      hitbox.y
-
-  };
-
-}
-
-
-/* =====================================================
-   VELOCIDAD DEL CUERPO
-===================================================== */
-
-function velocidadPunto(
-  punto
-) {
-
-  if (!punto)
-    return {
-      x: 0,
-      y: 0
-    };
-
-
-  let mejor =
-    null;
-
-
-  let mejorDistancia =
-    Infinity;
-
-
-  for (
-    const clave
-    in historial
-  ) {
-
-    const h =
-      historial[clave];
-
-
-    const d =
-      Math.abs(
-        h.x -
-        punto.x
-      )
-      +
-      Math.abs(
-        h.y -
-        punto.y
-      );
-
-
-    if (
-      d <
-      mejorDistancia
-    ) {
-
-      mejorDistancia =
-        d;
-
-      mejor =
-        h;
-
-    }
-
-  }
-
-
-  if (!mejor) {
-
-    return {
-      x: 0,
-      y: 0
-    };
-
-  }
-
-
-  return {
-
-    x:
-      mejor.vx,
-
-    y:
-      mejor.vy
-
-  };
-
-}
-
-
-/* =====================================================
-   INTERSECCIÓN DE TRAYECTORIA
-===================================================== */
-
-function comprobarTrayectoria(
-  anterior,
-  actual,
-  objetivo,
-  radio
-) {
-
-  /*
-     Vector del movimiento del balón.
-  */
-
-  const dx =
-    actual.x -
-    anterior.x;
-
-
-  const dy =
-    actual.y -
-    anterior.y;
-
-
-  const longitud2 =
-    dx * dx +
-    dy * dy;
-
-
-  /*
-     Si casi no se mueve,
-     comprobamos posición normal.
-  */
-
-  if (
-    longitud2 < 0.0000001
-  ) {
-
-    return
-      distancia(
-        actual,
-        objetivo
-      )
-      <= radio;
-
-  }
-
-
-  /*
-     Proyección del objetivo
-     sobre la trayectoria.
-  */
-
-  let t =
-    (
-      (
-        objetivo.x -
-        anterior.x
-      ) * dx
-      +
-      (
-        objetivo.y -
-        anterior.y
-      ) * dy
-    )
-    /
-    longitud2;
-
-
-  t =
-    Math.max(
-      0,
-      Math.min(
-        1,
-        t
-      )
-    );
-
-
-  const cercano = {
-
-    x:
-      anterior.x +
-      t * dx,
-
-    y:
-      anterior.y +
-      t * dy
-
-  };
-
-
-  return
-    distancia(
-      cercano,
-      objetivo
-    )
-    <= radio;
-
-}
-
-
-/* =====================================================
-   CONTACTO
-===================================================== */
-
-function comprobarContacto() {
-
-  if (
-    !jugando ||
-    !pelota.activa
-  ) {
-
-    return;
-
-  }
-
-
-  const ahora =
-    performance.now();
-
-
-  /*
-     BLOQUEO DE 700 MS.
-  */
-
-  if (
-    ahora -
-    pelota.ultimoToque
-    <
-    TIEMPO_BLOQUEO
-  ) {
-
-    return;
-
-  }
-
-
-  const hitboxes =
-    obtenerHitboxes();
-
-
-  /*
-     Primero comprobamos
-     pies y rodillas.
-
-     El pecho queda después.
-  */
-
-  const ordenados =
-    hitboxes.sort(
-      (a, b) => {
-
-        const da =
-          distancia(
-            pelota,
-            a
-          );
-
-
-        const db =
-          distancia(
-            pelota,
-            b
-          );
-
-
-        return da - db;
+  keypoints.forEach(
+    (punto, indice) => {
+
+      /*
+         Umbral relativamente
+         bajo para comprobar
+         que MoveNet realmente
+         encuentra el cuerpo.
+      */
+
+      if (
+        punto.score < 0.20
+      ) {
+
+        return;
 
       }
-    );
 
 
-  for (
-    const hitbox
-    of ordenados
-  ) {
+      cantidad++;
 
-    const objetivo =
-      puntoMasCercano(
-        hitbox
+
+      /*
+         COLOR.
+
+         Rodillas:
+         amarillo.
+
+         Tobillos:
+         rojo.
+
+         Resto:
+         verde.
+      */
+
+      let color =
+        "#00ff55";
+
+
+      if (
+        indice === 13 ||
+        indice === 14
+      ) {
+
+        color =
+          "#ffee00";
+
+      }
+
+
+      if (
+        indice === 15 ||
+        indice === 16
+      ) {
+
+        color =
+          "#ff3333";
+
+      }
+
+
+      /*
+         Tamaño.
+      */
+
+      let radio =
+        9;
+
+
+      if (
+        indice === 13 ||
+        indice === 14
+      ) {
+
+        radio =
+          12;
+
+      }
+
+
+      if (
+        indice === 15 ||
+        indice === 16
+      ) {
+
+        radio =
+          13;
+
+      }
+
+
+      /*
+         Dibujar.
+      */
+
+      ctx.beginPath();
+
+
+      ctx.arc(
+
+        punto.x,
+
+        punto.y,
+
+        radio,
+
+        0,
+
+        Math.PI * 2
+
       );
 
 
-    /*
-       Radio total:
-
-       hitbox del cuerpo
-       +
-       balón.
-
-       No es enorme.
-    */
-
-    const radioTotal =
-      hitbox.radio +
-      pelota.radio;
+      ctx.fillStyle =
+        color;
 
 
-    /*
-       Primero trayectoria.
-
-       Esto evita que el balón
-       atraviese el cuerpo entre
-       dos frames.
-    */
-
-    const toca =
-      comprobarTrayectoria(
-
-        {
-          x:
-            pelota.anteriorX,
-
-          y:
-            pelota.anteriorY
-
-        },
-
-        {
-
-          x:
-            pelota.x,
-
-          y:
-            pelota.y
-
-        },
-
-        objetivo,
-
-        radioTotal
-
-      );
+      ctx.fill();
 
 
-    if (toca) {
+      /*
+         Borde.
+      */
 
-      realizarToque(
-        hitbox,
-        objetivo
-      );
+      ctx.lineWidth =
+        3;
 
-      return;
+
+      ctx.strokeStyle =
+        "#000";
+
+
+      ctx.stroke();
+
 
     }
-
-  }
-
-}
-
-
-/* =====================================================
-   REALIZAR TOQUE
-===================================================== */
-
-function realizarToque(
-  hitbox,
-  punto
-) {
-
-  const ahora =
-    performance.now();
-
-
-  /*
-     Seguridad.
-
-     700 ms completos.
-  */
-
-  if (
-    ahora -
-    pelota.ultimoToque
-    <
-    TIEMPO_BLOQUEO
-  ) {
-
-    return;
-
-  }
-
-
-  pelota.ultimoToque =
-    ahora;
-
-
-  pelota.ultimoTipo =
-    hitbox.tipo;
-
-
-  /*
-     SUMAR.
-  */
-
-  contador++;
-
-
-  contadorTexto.textContent =
-    contador;
-
-
-  /*
-     Movimiento de la parte
-     del cuerpo.
-  */
-
-  const velocidad =
-    velocidadPunto(
-      punto
-    );
-
-
-  /*
-     IMPULSO BASE.
-
-     Bastante alto, pero
-     limitado.
-  */
-
-  let impulso =
-    IMPULSO_BASE;
-
-
-  /*
-     Si la parte se mueve
-     hacia arriba, aumentamos
-     un poco el impulso.
-  */
-
-  if (
-    velocidad.y < 0
-  ) {
-
-    impulso +=
-      Math.abs(
-        velocidad.y
-      ) *
-      0.35;
-
-  }
-
-
-  /*
-     Limitar.
-  */
-
-  impulso =
-    Math.max(
-      IMPULSO_BASE,
-      Math.min(
-        IMPULSO_MAX,
-        impulso
-      )
-    );
-
-
-  /*
-     PIE.
-
-     Un toque de pie tiene
-     bastante fuerza.
-  */
-
-  if (
-    hitbox.tipo.includes(
-      "pie"
-    )
-  ) {
-
-    impulso *=
-      1.04;
-
-  }
-
-
-  /*
-     RODILLA.
-  */
-
-  if (
-    hitbox.tipo.includes(
-      "rodilla"
-    )
-  ) {
-
-    impulso *=
-      0.96;
-
-  }
-
-
-  /*
-     PECHO.
-
-     Más amortiguado.
-  */
-
-  if (
-    hitbox.tipo ===
-    "pecho"
-  ) {
-
-    impulso *=
-      0.72;
-
-  }
-
-
-  /*
-     VELOCIDAD LATERAL.
-
-     Menos agresiva que antes.
-  */
-
-  let horizontal =
-    velocidad.x *
-    0.35;
-
-
-  horizontal =
-    Math.max(
-      -0.006,
-      Math.min(
-        0.006,
-        horizontal
-      )
-    );
-
-
-  /*
-     Aplicar.
-  */
-
-  pelota.vy =
-    -impulso;
-
-
-  pelota.vx =
-    horizontal;
-
-
-  /*
-     Colocar la pelota
-     justo encima del punto.
-  */
-
-  pelota.x =
-    Math.max(
-      0.04,
-      Math.min(
-        0.96,
-        punto.x
-      )
-    );
-
-
-  pelota.y =
-    Math.max(
-      0.04,
-      punto.y -
-      0.025
-    );
-
-}
-
-
-/* =====================================================
-   ACTUALIZAR FÍSICA
-===================================================== */
-
-let ultimoFrame =
-  performance.now();
-
-
-function actualizarPelota(
-  tiempo
-) {
-
-  if (
-    !pelota.activa
-  ) {
-
-    ultimoFrame =
-      tiempo;
-
-    return;
-
-  }
-
-
-  let delta =
-    tiempo -
-    ultimoFrame;
-
-
-  ultimoFrame =
-    tiempo;
-
-
-  /*
-     Evita saltos cuando
-     el móvil pierde frames.
-  */
-
-  delta =
-    Math.min(
-      delta,
-      35
-    );
-
-
-  const factor =
-    delta /
-    16.67;
-
-
-  /*
-     Guardar posición anterior.
-  */
-
-  pelota.anteriorX =
-    pelota.x;
-
-
-  pelota.anteriorY =
-    pelota.y;
-
-
-  /*
-     GRAVEDAD.
-  */
-
-  pelota.vy +=
-    GRAVEDAD *
-    factor;
-
-
-  /*
-     MOVIMIENTO.
-  */
-
-  pelota.x +=
-    pelota.vx *
-    factor;
-
-
-  pelota.y +=
-    pelota.vy *
-    factor;
-
-
-  /*
-     AIRE.
-  */
-
-  pelota.vx *=
-    Math.pow(
-      0.997,
-      factor
-    );
-
-
-  /*
-     PAREDES.
-
-     Rebote moderado.
-  */
-
-  if (
-    pelota.x <
-    0.035
-  ) {
-
-    pelota.x =
-      0.035;
-
-
-    pelota.vx =
-      Math.abs(
-        pelota.vx
-      )
-      *
-      REBOTE_PARED;
-
-  }
-
-
-  if (
-    pelota.x >
-    0.965
-  ) {
-
-    pelota.x =
-      0.965;
-
-
-    pelota.vx =
-      -Math.abs(
-        pelota.vx
-      )
-      *
-      REBOTE_PARED;
-
-  }
-
-
-  /*
-     Si cae demasiado,
-     lo devolvemos arriba.
-  */
-
-  if (
-    pelota.y >
-    1.06
-  ) {
-
-    pelota.x =
-      0.45 +
-      Math.random() *
-      0.10;
-
-
-    pelota.y =
-      0.10;
-
-
-    pelota.vx =
-      0;
-
-
-    pelota.vy =
-      0.002;
-
-  }
-
-
-  /*
-     CONTACTO.
-  */
-
-  comprobarContacto();
-
-
-  /*
-     DIBUJAR.
-  */
-
-  const ancho =
-    zonaCamara.clientWidth;
-
-
-  const alto =
-    zonaCamara.clientHeight;
-
-
-  balon.style.left =
-    (
-      pelota.x *
-      ancho
-    )
-    + "px";
-
-
-  balon.style.top =
-    (
-      pelota.y *
-      alto
-    )
-    + "px";
-
-}
-
-
-/* =====================================================
-   BUCLE
-===================================================== */
-
-function bucleFisica(
-  tiempo
-) {
-
-  actualizarPelota(
-    tiempo
   );
 
 
-  requestAnimationFrame(
-    bucleFisica
-  );
+  puntosTexto.textContent =
+    "Puntos detectados: "
+    +
+    cantidad;
+
+
+  /*
+     Mensaje según detección.
+  */
+
+  if (
+    cantidad >= 12
+  ) {
+
+    estado.textContent =
+      "🟢 ¡Cuerpo detectado correctamente!";
+
+  }
+
+  else if (
+    cantidad >= 7
+  ) {
+
+    estado.textContent =
+      "🟡 Cuerpo detectado parcialmente";
+
+  }
+
+  else {
+
+    estado.textContent =
+      "🔴 Detección insuficiente";
+
+  }
 
 }
 
 
-requestAnimationFrame(
-  bucleFisica
+/* =====================================================
+   REDIMENSIONAR
+===================================================== */
+
+window.addEventListener(
+  "resize",
+  () => {
+
+    prepararCanvas();
+
+  }
 );
-
-
-/* =====================================================
-   EMPEZAR
-===================================================== */
-
-empezar.onclick =
-  () => {
-
-    contador =
-      0;
-
-
-    contadorTexto.textContent =
-      "0";
-
-
-    jugando =
-      true;
-
-
-    /*
-       GENERAR BALÓN.
-    */
-
-    pelota.activa =
-      true;
-
-
-    pelota.x =
-      0.50;
-
-
-    pelota.y =
-      0.12;
-
-
-    pelota.anteriorX =
-      pelota.x;
-
-
-    pelota.anteriorY =
-      pelota.y;
-
-
-    pelota.vx =
-      0;
-
-
-    pelota.vy =
-      0.002;
-
-
-    pelota.ultimoToque =
-      -10000;
-
-
-    pelota.ultimoTipo =
-      "";
-
-
-    balon.style.display =
-      "block";
-
-
-    estado.textContent =
-      "🔥 ¡Haz toques!";
-
-
-    empezar.disabled =
-      true;
-
-  };
-
-
-/* =====================================================
-   REINICIAR
-===================================================== */
-
-reiniciar.onclick =
-  () => {
-
-    jugando =
-      false;
-
-
-    contador =
-      0;
-
-
-    contadorTexto.textContent =
-      "0";
-
-
-    pelota.activa =
-      false;
-
-
-    pelota.vx =
-      0;
-
-
-    pelota.vy =
-      0;
-
-
-    pelota.ultimoToque =
-      -10000;
-
-
-    pelota.ultimoTipo =
-      "";
-
-
-    balon.style.display =
-      "none";
-
-
-    empezar.disabled =
-      !video.srcObject;
-
-
-    estado.textContent =
-      video.srcObject
-        ? "Pulsa «Empezar»"
-        : "Activa la cámara";
-
-  };
-
-
-/* =====================================================
-   CALIBRAR
-===================================================== */
-
-calibrar.onclick =
-  () => {
-
-    recalibrar();
-
-  };
-
 
 </script>
 
